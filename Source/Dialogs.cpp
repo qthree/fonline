@@ -582,7 +582,7 @@ DemandResult* DialogManager::LoadDemandResult( istrstream& input, bool is_demand
         }
         else
         {
-            char ch = *input.rdbuf()->_M_gptr();
+            char ch = input.rdbuf()->sgetc();
             if( ch == ' ' )
             {
                 #ifdef FONLINE_NPCEDITOR
