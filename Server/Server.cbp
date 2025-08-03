@@ -281,10 +281,10 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="../Source/Zlib/zutil.h" />
-		<Unit filename="../Source/datfile/cfile.cpp" />
-		<Unit filename="../Source/datfile/cfile.h" />
-		<Unit filename="../Source/datfile/unlzss.cpp" />
-		<Unit filename="../Source/datfile/unlzss.h" />
+		<Unit filename="../Source/DatFile/cfile.cpp" />
+		<Unit filename="../Source/DatFile/cfile.h" />
+		<Unit filename="../Source/DatFile/unlzss.cpp" />
+		<Unit filename="../Source/DatFile/unlzss.h" />
 		<Extensions>
 			<code_completion />
 			<envvars />

@@ -284,10 +284,10 @@
     <ClCompile Include="..\Source\AngelScript\Preprocessor\preprocess.cpp">
       <Filter>AngelScript\Preprocessor</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\datfile\cfile.cpp">
+    <ClCompile Include="..\Source\DatFile\cfile.cpp">
       <Filter>DatFile</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\datfile\unlzss.cpp">
+    <ClCompile Include="..\Source\DatFile\unlzss.cpp">
       <Filter>DatFile</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\SHA2\sha2.c">
@@ -616,10 +616,10 @@
     <ClInclude Include="..\Source\AngelScript\Preprocessor\stream.h">
       <Filter>AngelScript\Preprocessor</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\datfile\cfile.h">
+    <ClInclude Include="..\Source\DatFile\cfile.h">
       <Filter>DatFile</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\datfile\unlzss.h">
+    <ClInclude Include="..\Source\DatFile\unlzss.h">
       <Filter>DatFile</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\SHA2\sha2.h">
