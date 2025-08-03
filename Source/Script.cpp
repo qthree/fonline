@@ -937,7 +937,7 @@ asIScriptEngine* Script::CreateEngine( Preprocessor::PragmaCallback* pragma_call
     if( !engine )
     {
         WriteLogF( _FUNC_, " - asCreateScriptEngine fail.\n" );
-        return false;
+        return NULL;
     }
 
     engine->SetMessageCallback( asFUNCTION( CallbackMessage ), NULL, asCALL_CDECL );
