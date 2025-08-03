@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Release|Win32">
@@ -195,79 +195,79 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="..\Source\FileSystem.cpp" />
-    <ClCompile Include="..\Source\Zlib\adler32.c">
+    <ClCompile Include="..\Source\zlib\adler32.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
       </PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\Source\Zlib\compress.c">
+    <ClCompile Include="..\Source\zlib\compress.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
       </PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\Source\Zlib\crc32.c">
+    <ClCompile Include="..\Source\zlib\crc32.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
       </PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\Source\Zlib\deflate.c">
+    <ClCompile Include="..\Source\zlib\deflate.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
       </PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\Source\Zlib\infback.c">
+    <ClCompile Include="..\Source\zlib\infback.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
       </PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\Source\Zlib\inffast.c">
+    <ClCompile Include="..\Source\zlib\inffast.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
       </PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\Source\Zlib\inflate.c">
+    <ClCompile Include="..\Source\zlib\inflate.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
       </PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\Source\Zlib\inftrees.c">
+    <ClCompile Include="..\Source\zlib\inftrees.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
       </PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\Source\Zlib\ioapi.c">
+    <ClCompile Include="..\Source\zlib\ioapi.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
       </PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\Source\Zlib\trees.c">
+    <ClCompile Include="..\Source\zlib\trees.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
       </PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\Source\Zlib\uncompr.c">
+    <ClCompile Include="..\Source\zlib\uncompr.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
       </PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\Source\Zlib\unzip.c">
+    <ClCompile Include="..\Source\zlib\unzip.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
       </PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\Source\Zlib\zutil.c">
+    <ClCompile Include="..\Source\zlib\zutil.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
       </PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -576,18 +576,18 @@
   <ItemGroup>
     <ClInclude Include="..\Source\AngelScript\scriptstring.h" />
     <ClInclude Include="..\Source\FileSystem.h" />
-    <ClInclude Include="..\Source\Zlib\crc32.h" />
-    <ClInclude Include="..\Source\Zlib\deflate.h" />
-    <ClInclude Include="..\Source\Zlib\inffast.h" />
-    <ClInclude Include="..\Source\Zlib\inffixed.h" />
-    <ClInclude Include="..\Source\Zlib\inflate.h" />
-    <ClInclude Include="..\Source\Zlib\inftrees.h" />
-    <ClInclude Include="..\Source\Zlib\ioapi.h" />
-    <ClInclude Include="..\Source\Zlib\trees.h" />
-    <ClInclude Include="..\Source\Zlib\unzip.h" />
-    <ClInclude Include="..\Source\Zlib\zconf.h" />
-    <ClInclude Include="..\Source\Zlib\zlib.h" />
-    <ClInclude Include="..\Source\Zlib\zutil.h" />
+    <ClInclude Include="..\Source\zlib\crc32.h" />
+    <ClInclude Include="..\Source\zlib\deflate.h" />
+    <ClInclude Include="..\Source\zlib\inffast.h" />
+    <ClInclude Include="..\Source\zlib\inffixed.h" />
+    <ClInclude Include="..\Source\zlib\inflate.h" />
+    <ClInclude Include="..\Source\zlib\inftrees.h" />
+    <ClInclude Include="..\Source\zlib\ioapi.h" />
+    <ClInclude Include="..\Source\zlib\trees.h" />
+    <ClInclude Include="..\Source\zlib\unzip.h" />
+    <ClInclude Include="..\Source\zlib\zconf.h" />
+    <ClInclude Include="..\Source\zlib\zlib.h" />
+    <ClInclude Include="..\Source\zlib\zutil.h" />
     <ClInclude Include="..\Source\Access.h" />
     <ClInclude Include="..\Source\AI.h" />
     <ClInclude Include="..\Source\BufferManager.h" />

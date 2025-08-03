@@ -1,11 +1,11 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Resource">
       <UniqueIdentifier>{3f7150a9-c816-4fc4-975d-95df18aa7a51}</UniqueIdentifier>
       <Extensions>ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe</Extensions>
     </Filter>
-    <Filter Include="Zlib">
+    <Filter Include="zlib">
       <UniqueIdentifier>{d1e8f5cb-ef00-45fd-a4db-b4d24333cba4}</UniqueIdentifier>
     </Filter>
     <Filter Include="Server">
@@ -35,44 +35,44 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\Source\Zlib\adler32.c">
-      <Filter>Zlib</Filter>
+    <ClCompile Include="..\Source\zlib\adler32.c">
+      <Filter>zlib</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\Zlib\compress.c">
-      <Filter>Zlib</Filter>
+    <ClCompile Include="..\Source\zlib\compress.c">
+      <Filter>zlib</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\Zlib\crc32.c">
-      <Filter>Zlib</Filter>
+    <ClCompile Include="..\Source\zlib\crc32.c">
+      <Filter>zlib</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\Zlib\deflate.c">
-      <Filter>Zlib</Filter>
+    <ClCompile Include="..\Source\zlib\deflate.c">
+      <Filter>zlib</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\Zlib\infback.c">
-      <Filter>Zlib</Filter>
+    <ClCompile Include="..\Source\zlib\infback.c">
+      <Filter>zlib</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\Zlib\inffast.c">
-      <Filter>Zlib</Filter>
+    <ClCompile Include="..\Source\zlib\inffast.c">
+      <Filter>zlib</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\Zlib\inflate.c">
-      <Filter>Zlib</Filter>
+    <ClCompile Include="..\Source\zlib\inflate.c">
+      <Filter>zlib</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\Zlib\inftrees.c">
-      <Filter>Zlib</Filter>
+    <ClCompile Include="..\Source\zlib\inftrees.c">
+      <Filter>zlib</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\Zlib\ioapi.c">
-      <Filter>Zlib</Filter>
+    <ClCompile Include="..\Source\zlib\ioapi.c">
+      <Filter>zlib</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\Zlib\trees.c">
-      <Filter>Zlib</Filter>
+    <ClCompile Include="..\Source\zlib\trees.c">
+      <Filter>zlib</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\Zlib\uncompr.c">
-      <Filter>Zlib</Filter>
+    <ClCompile Include="..\Source\zlib\uncompr.c">
+      <Filter>zlib</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\Zlib\unzip.c">
-      <Filter>Zlib</Filter>
+    <ClCompile Include="..\Source\zlib\unzip.c">
+      <Filter>zlib</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\Zlib\zutil.c">
-      <Filter>Zlib</Filter>
+    <ClCompile Include="..\Source\zlib\zutil.c">
+      <Filter>zlib</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\AI.cpp">
       <Filter>Server</Filter>
@@ -316,41 +316,41 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Source\Zlib\crc32.h">
-      <Filter>Zlib</Filter>
+    <ClInclude Include="..\Source\zlib\crc32.h">
+      <Filter>zlib</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\Zlib\deflate.h">
-      <Filter>Zlib</Filter>
+    <ClInclude Include="..\Source\zlib\deflate.h">
+      <Filter>zlib</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\Zlib\inffast.h">
-      <Filter>Zlib</Filter>
+    <ClInclude Include="..\Source\zlib\inffast.h">
+      <Filter>zlib</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\Zlib\inffixed.h">
-      <Filter>Zlib</Filter>
+    <ClInclude Include="..\Source\zlib\inffixed.h">
+      <Filter>zlib</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\Zlib\inflate.h">
-      <Filter>Zlib</Filter>
+    <ClInclude Include="..\Source\zlib\inflate.h">
+      <Filter>zlib</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\Zlib\inftrees.h">
-      <Filter>Zlib</Filter>
+    <ClInclude Include="..\Source\zlib\inftrees.h">
+      <Filter>zlib</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\Zlib\ioapi.h">
-      <Filter>Zlib</Filter>
+    <ClInclude Include="..\Source\zlib\ioapi.h">
+      <Filter>zlib</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\Zlib\trees.h">
-      <Filter>Zlib</Filter>
+    <ClInclude Include="..\Source\zlib\trees.h">
+      <Filter>zlib</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\Zlib\unzip.h">
-      <Filter>Zlib</Filter>
+    <ClInclude Include="..\Source\zlib\unzip.h">
+      <Filter>zlib</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\Zlib\zconf.h">
-      <Filter>Zlib</Filter>
+    <ClInclude Include="..\Source\zlib\zconf.h">
+      <Filter>zlib</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\Zlib\zlib.h">
-      <Filter>Zlib</Filter>
+    <ClInclude Include="..\Source\zlib\zlib.h">
+      <Filter>zlib</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\Zlib\zutil.h">
-      <Filter>Zlib</Filter>
+    <ClInclude Include="..\Source\zlib\zutil.h">
+      <Filter>zlib</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\Access.h">
       <Filter>Server</Filter>
