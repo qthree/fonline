@@ -1,6 +1,9 @@
 #include "StdAfx.h"
 #include "Server.h"
+
+#ifndef SERVER_LIB
 #include "FL/Fl.H"
+#endif // SERVER_LIB
 
 void* zlib_alloc( void* opaque, unsigned int items, unsigned int size ) { return calloc( items, size ); }
 void  zlib_free( void* opaque, void* address )                          { free( address ); }
