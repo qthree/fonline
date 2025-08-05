@@ -1,6 +1,14 @@
 #include "StdAfx.h"
 #include "Exception.h"
 
+#ifdef DISABLE_EXCEPTION_HANDLING
+
+void CatchExceptions( const string& app_name, int app_ver ) {}
+void SetExceptionsRussianText() {}
+void CreateDump( const char* appendix ) {}
+
+#else // DISABLE_EXCEPTION_HANDLING
+
 char DumpMessRus[] =
 {
     "Пожалуйста вышлите этот файл '%s' на e-mail 'support@fonline.ru'."
@@ -619,3 +627,4 @@ void TerminationHandler( int signum, siginfo_t* siginfo, void* context )
 }
 
 #endif
+#endif // DISABLE_EXCEPTION_HANDLING
