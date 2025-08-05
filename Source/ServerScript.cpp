@@ -8,10 +8,12 @@
 
 #include "md5.h"
 
+#ifndef CORROSION
 // Global_LoadImage
 #include "PNG/png.h"
 #ifdef FO_WINDOWS
 # pragma comment( lib, "libpng15.lib" )
+#endif
 #endif
 
 void* ASDebugMalloc( size_t size )
@@ -6223,6 +6225,7 @@ ScriptString* FOServer::SScriptFunc::Global_GetCritterSoundName( uint cr_type )
     return new ScriptString( CritType::GetSoundName( cr_type ) );
 }
 
+#ifndef CORROSION
 struct ServerImage
 {
     UCharVec Data;
@@ -6399,6 +6402,7 @@ uint FOServer::SScriptFunc::Global_GetImageColor( uint index, uint x, uint y )
     }
     return result;
 }
+#endif // CORROSION
 
 uint FOServer::SScriptFunc::Global_GetScriptId( ScriptString& script_name, ScriptString& func_decl )
 {
