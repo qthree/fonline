@@ -1,5 +1,28 @@
 #include "StdAfx.h"
 #include "Debugger.h"
+
+#ifdef DISABLE_DEBUGGER
+
+void Debugger::BeginCycle() {}
+void Debugger::BeginBlock( int num_block ) {}
+void Debugger::ProcessBlock( int num_block, int identifier ) {}
+void Debugger::EndCycle( double lag_to_show ) {}
+void Debugger::ShowLags( int num_block, double lag_to_show ) {}
+
+void        Debugger::Memory( int block, int value ) {}
+void        Debugger::MemoryStr( const char* block, int value ) {}
+const char* Debugger::GetMemoryStatistics() {
+    static string result;
+    return result.c_str();
+}
+
+void   Debugger::StartTraceMemory() {}
+string Debugger::GetTraceMemory() {
+    string str;
+    return str;
+}
+
+#else // DISABLE_DEBUGGER
 #include "Mutex.h"
 
 #define MAX_BLOCKS       ( 25 )
@@ -685,3 +708,4 @@ string Debugger::GetTraceMemory()
     MemoryAllocRecursion--;
     return str;
 }
+#endif // DISABLE_DEBUGGER
