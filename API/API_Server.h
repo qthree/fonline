@@ -24,4 +24,8 @@ EXPORT uint Timer_GameTick();
 EXPORT uint Timer_FastTick();
 EXPORT ServerGameOptions* Server_GameOptions();
 
+#ifdef SERVER_LIB
+EXPORT int Global_StartServerLib( int argc, const void* argv );
+#endif
+
 #endif // __API_SERVER__
