@@ -99,10 +99,6 @@ typedef vector< Npc* >        PcVec;
 
 class Critter
 {
-private:
-    Critter( const Critter& ) {}
-    Critter& operator=( const Critter& ) {}
-
 public:
     Critter();
     ~Critter();
