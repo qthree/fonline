@@ -149,7 +149,11 @@ public:
     uint ItemSlot;
 
     NpcBagItem(): ItemPid( 0 ), MinCnt( 0 ), MaxCnt( 0 ), ItemSlot( SLOT_INV ) {}
+#ifdef FO_GCC
+    NpcBagItem( const NpcBagItem& r ) = default;
+#else
     NpcBagItem( const NpcBagItem& r ): ItemPid( r.ItemPid ), MinCnt( r.MinCnt ), MaxCnt( r.MaxCnt ), ItemSlot( r.ItemSlot ) {}
+#endif // FO_GCC
 };
 typedef vector< NpcBagItem >             NpcBagItems;
 typedef vector< NpcBagItems >            NpcBagCombination;
