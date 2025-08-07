@@ -148,8 +148,8 @@ public:
     void SetLexems( const char* lexems );
     bool IsLexems() { return Data.Lexems[ 0 ] != 0; }
 
-    int  RunParamsSendScript( int bind_id, uint param_index, Critter* from_cr, Critter* to_cr );
-    bool RunSlotDataSendScript( int bind_id, uchar slot, Item* item, Critter* from_cr, Critter* to_cr );
+    static int  RunParamsSendScript( int bind_id, uint param_index, Critter* from_cr, Critter* to_cr );
+    static bool RunSlotDataSendScript( int bind_id, uchar slot, Item* item, Critter* from_cr, Critter* to_cr );
 
     // Visible critters and items
     CrVec         VisCr;
