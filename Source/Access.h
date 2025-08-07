@@ -49,6 +49,7 @@
 #define CMD_DROP_UID                 ( 36 )
 #define CMD_LOG                      ( 37 )
 
+#ifndef SERVER_LIB // only used in client and admin panel
 struct CmdDef
 {
     char  cmd[ 20 ];
@@ -757,5 +758,5 @@ inline void PackCommand( const char* str, BufferManager& buf, void ( * logcb )( 
         break;
     }
 }
-
+#endif // SERVER_LIB
 #endif // __ACCESS__
