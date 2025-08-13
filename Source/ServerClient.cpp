@@ -1399,7 +1399,7 @@ bool FOServer::VerifyTrigger( Map* map, Critter* cr, ushort from_hx, ushort from
     }
     return result;
 }
-
+#ifndef CORRODED_NET
 void FOServer::Process_CreateClient( Client* cl )
 {
     // Check for ban by ip
@@ -1483,6 +1483,14 @@ void FOServer::Process_CreateClient( Client* cl )
 
     // Check net
     CHECK_IN_BUFF_ERROR_EX( cl, cl->Send_TextMsg( cl, STR_NET_DATATRANS_ERR, SAY_NETMSG, TEXTMSG_GAME ) );
+#else // CORRODED_NET
+    void FOServer::Process_CreateClient( Client* cl, const NetmsgRegister& msg)
+    {
+        Str::Copy( cl->Name, msg.name );
+        memcpy( cl->PassHash, msg.pass_hash, PASS_HASH_SIZE);
+
+#endif // CORRODED_NET
+
 
     // Check data
     if( !CheckUserName( cl->Name ) )
@@ -1524,7 +1532,7 @@ void FOServer::Process_CreateClient( Client* cl )
         char c = cl->Name[ i ];
         if( ( c >= 'a' && c <= 'z' ) || ( c >= 'A' && c <= 'Z' ) )
             letters_eng++;
-        else if( ( c >= 'à' && c <= 'ÿ' ) || ( c >= 'À' && c <= 'ß' ) || c == '¸' || c == '¨' )
+        else if( ( c >= 'ï¿½' && c <= 'ï¿½' ) || ( c >= 'ï¿½' && c <= 'ï¿½' ) || c == 'ï¿½' || c == 'ï¿½' )
             letters_rus++;
     }
 
@@ -1710,9 +1718,13 @@ void FOServer::Process_CreateClient( Client* cl )
     else
         cl->Send_TextMsg( cl, STR_SP_NEW_GAME_SUCCESS, SAY_NETMSG, TEXTMSG_GAME );
 
+    #ifndef CORRODED_NET
     BOUT_BEGIN( cl );
     cl->Bout << (uint) NETMSG_REGISTER_SUCCESS;
     BOUT_END( cl );
+    #else 
+    cl->Send_RegisterSuccess();
+    #endif // CORRODED_NET
 
     cl->Disconnect();
 
@@ -1750,8 +1762,8 @@ void FOServer::Process_CreateClient( Client* cl )
     }
 }
 
-void FOServer::Process_LogIn( ClientPtr& cl )
-{
+#ifndef CORRODED_NET
+void FOServer::Process_LogIn( ClientPtr& cl ) {
     // Net protocol
     ushort proto_ver = 0;
     cl->Bin >> proto_ver;
@@ -1866,6 +1878,22 @@ void FOServer::Process_LogIn( ClientPtr& cl )
             return;
         }
     }
+}
+#else
+void FOServer::Process_LogIn( ClientPtr& cl, const NetmsgLogin& msg )
+{
+    // Singleplayer is not supported
+    auto name = msg.name;
+    Str::Copy( cl->Name, msg.name );
+    memcpy( cl->PassHash, msg.pass_hash, PASS_HASH_SIZE);
+
+    uint uidxor = msg.uidxor;
+    uint uidor = msg.uidor;
+    uint uidcalc = msg.uidcalc;
+    uint uid[ 5 ];
+    memcpy( uid, msg.uid, sizeof(uid));
+    uchar default_combat_mode = msg.default_combat_mode;
+#endif // CORRODED_NET
 
     // Check login/password
     if( !Singleplayer )
@@ -2096,6 +2124,43 @@ void FOServer::Process_LogIn( ClientPtr& cl )
             return;
         }
 
+    #ifdef CORRODED_NET
+        // Current critter dropped or previous still online
+        // Cancel swapping
+        if( !cl->HasNet() || cl_old->HasNet() ) {
+            WriteLog( "Hello?\n" );
+            ConnectedClientsLocker.Unlock();
+            cl->Disconnect();
+            return;
+        }
+
+        // Assign to ConnectedClients
+        cl_old->AddRef();
+        ( *it ) = cl_old;
+
+        cl->SwapNet(cl_old);
+
+        cl_old->GameState = STATE_CONNECTED;
+        UNSETFLAG( cl_old->Flags, FCRIT_DISCONNECT );
+        cl_old->IsNotValid = false;
+
+        cl->GameState = STATE_NONE;
+        SETFLAG( cl->Flags, FCRIT_DISCONNECT );
+        cl->IsNotValid = true;
+
+        // Other data
+        cl_old->Data.Params[ MODE_DEFAULT_COMBAT ] = cl->Data.Params[ MODE_DEFAULT_COMBAT ];
+
+        Job::DeferredRelease( cl );
+        cl = cl_old;
+
+        ConnectedClientsLocker.Unlock();
+
+        // Erase from save
+        EraseSaveClient( cl->GetId() );
+
+        cl->SendA_Action( ACTION_CONNECT, 0, NULL );
+    #else
         // Swap
         BIN_END( cl );
 
@@ -2189,6 +2254,7 @@ void FOServer::Process_LogIn( ClientPtr& cl )
         EraseSaveClient( cl->GetId() );
 
         cl->SendA_Action( ACTION_CONNECT, 0, NULL );
+    #endif // CORRODED_NET
     }
     // Avatar not in game
     else
@@ -2396,6 +2462,7 @@ void FOServer::Process_LogIn( ClientPtr& cl )
         }
     }
 
+    #ifndef CORRODED_NET
     // Login ok
     uint bin_seed = Random( 100000, 2000000000 );
     uint bout_seed = Random( 100000, 2000000000 );
@@ -2408,7 +2475,9 @@ void FOServer::Process_LogIn( ClientPtr& cl )
     cl->Bout.SetEncryptKey( bout_seed );
     cl->Send_LoadMap( NULL );
     cl->Send_LookData();
+    #endif
 }
+#ifndef CORRODED_NET
 void FOServer::Process_SingleplayerSaveLoad( Client* cl )
 {
     if( !Singleplayer )
@@ -2471,7 +2540,7 @@ void FOServer::Process_SingleplayerSaveLoad( Client* cl )
         cl->Disconnect();
     }
 }
-
+#endif // CORRODED_NET
 void FOServer::Process_ParseToGame( Client* cl )
 {
     if( !cl->GetId() || !CrMngr.GetPlayer( cl->GetId(), false ) )
@@ -2592,7 +2661,7 @@ void FOServer::Process_ParseToGame( Client* cl )
     else if( TB_BATTLE_TIMEOUT_CHECK( cl->GetParam( TO_BATTLE ) ) )
         cl->SetTimeout( TO_BATTLE, 0 );
 }
-
+#ifndef CORRODED_NET
 void FOServer::Process_GiveMap( Client* cl )
 {
     bool   automap;
@@ -2668,7 +2737,9 @@ void FOServer::Process_GiveMap( Client* cl )
         cl->Send_LoadMap( map );
     }
 }
+#endif CORRODED_NET
 
+#ifndef CORRODED_NET
 void FOServer::Send_MapData( Client* cl, ProtoMap* pmap, uchar send_info )
 {
     uint   msg = NETMSG_MAP;
@@ -2718,7 +2789,15 @@ void FOServer::Send_MapData( Client* cl, ProtoMap* pmap, uchar send_info )
     }
     BOUT_END( cl );
 }
+#endif // CORRODED_NET
 
+#ifdef CORRODED_NET
+void FOServer::Process_Move( Client* cl, const NetmsgMove& msg )
+{
+    uint   move_params = msg.move_params;
+    ushort hx = msg.hx;
+    ushort hy = msg.hy;
+#else
 void FOServer::Process_Move( Client* cl )
 {
     uint   move_params;
@@ -2729,7 +2808,7 @@ void FOServer::Process_Move( Client* cl )
     cl->Bin >> hx;
     cl->Bin >> hy;
     CHECK_IN_BUFF_ERROR( cl );
-
+#endif // CORRODED_NET
     if( !cl->GetMap() )
         return;
 
@@ -2795,6 +2874,7 @@ void FOServer::Process_Move( Client* cl )
     Act_Move( cl, hx, hy, move_params );
 }
 
+#ifndef CORRODED_NET
 void FOServer::Process_ChangeItem( Client* cl )
 {
     uint  item_id;
@@ -2844,7 +2924,9 @@ void FOServer::Process_ChangeItem( Client* cl )
         cl->Send_AddAllItems();
     }
 }
+#endif // CORRODED_NET
 
+#ifndef CORRODED_NET
 void FOServer::Process_RateItem( Client* cl )
 {
     uint rate;
@@ -2857,7 +2939,9 @@ void FOServer::Process_RateItem( Client* cl )
         cl->Data.Params[ ST_HANDS_ITEM_AND_MODE ] = rate;
     }
 }
+#endif // CORRODED_NET
 
+#ifndef CORRODED_NET
 void FOServer::Process_SortValueItem( Client* cl )
 {
     uint   item_id;
@@ -2876,7 +2960,19 @@ void FOServer::Process_SortValueItem( Client* cl )
 
     item->Data.SortValue = sort_val;
 }
+#endif // CORRODED_NET
 
+#ifdef CORRODED_NET
+void FOServer::Process_UseItem( Client* cl, const NetmsgUseItem& msg )
+{
+    uint   item_id = msg.item_id;
+    ushort item_pid = msg.item_pid;
+    uchar  rate = msg.rate;
+    uchar  target_type = msg.target_type;
+    uint   target_id = msg.target_id;
+    ushort target_pid = msg.target_pid;
+    uint   param = msg.param;
+#else
 void FOServer::Process_UseItem( Client* cl )
 {
     uint   item_id;
@@ -2895,7 +2991,7 @@ void FOServer::Process_UseItem( Client* cl )
     cl->Bin >> target_pid;
     cl->Bin >> param;
     CHECK_IN_BUFF_ERROR( cl );
-
+#endif
     if( !cl->IsLife() )
         return;
 
@@ -2962,6 +3058,7 @@ void FOServer::Process_UseItem( Client* cl )
     }
 }
 
+#ifndef CORRODED_NET
 void FOServer::Process_PickItem( Client* cl )
 {
     ushort targ_x;
@@ -2975,7 +3072,12 @@ void FOServer::Process_PickItem( Client* cl )
 
     Act_PickItem( cl, targ_x, targ_y, pid );
 }
+#endif // CORRODED_NET
 
+#ifdef CORRODED_NET
+void FOServer::Process_PickCritter( Client* cl, uint crid, uchar pick_type )
+{
+#else
 void FOServer::Process_PickCritter( Client* cl )
 {
     uint  crid;
@@ -2984,6 +3086,7 @@ void FOServer::Process_PickCritter( Client* cl )
     cl->Bin >> crid;
     cl->Bin >> pick_type;
     CHECK_IN_BUFF_ERROR( cl );
+#endif // CORRODED_NET
 
     cl->SetBreakTime( GameOpt.Breaktime );
 
@@ -3077,6 +3180,15 @@ void FOServer::Process_PickCritter( Client* cl )
     }
 }
 
+#ifdef CORRODED_NET
+void FOServer::Process_ContainerItem( Client* cl, const NetmsgContainerItem& msg )
+{
+    uchar transfer_type = msg.transfer_type;
+    uint  cont_id = msg.cont_id;
+    uint  item_id = msg.item_id;
+    uint  item_count = msg.item_count;
+    uchar take_flags = msg.take_flags;
+#else
 void FOServer::Process_ContainerItem( Client* cl )
 {
     uchar transfer_type;
@@ -3091,7 +3203,7 @@ void FOServer::Process_ContainerItem( Client* cl )
     cl->Bin >> item_count;
     cl->Bin >> take_flags;
     CHECK_IN_BUFF_ERROR( cl );
-
+#endif // CORRODED_NET
     cl->SetBreakTime( GameOpt.Breaktime );
 
     if( !cl->CheckMyTurn( NULL ) )
@@ -3692,6 +3804,7 @@ void FOServer::Process_ContainerItem( Client* cl )
     }
 }
 
+#ifndef CORRODED_NET
 void FOServer::Process_UseSkill( Client* cl )
 {
     ushort skill;
@@ -3719,7 +3832,9 @@ void FOServer::Process_UseSkill( Client* cl )
 
     Act_Use( cl, 0, skill, targ_type, target_id, target_pid, 0 );
 }
+#endif // CORRODED_NET
 
+#ifndef CORRODED_NET
 void FOServer::Process_Dir( Client* cl )
 {
     uchar dir;
@@ -3742,7 +3857,17 @@ void FOServer::Process_Dir( Client* cl )
         cl->ProcessVisibleItems();
     }
 }
+#endif // CORRODED_NET
 
+#ifdef CORRODED_NET
+void FOServer::Process_SetUserHoloStr( Client* cl, const NetmsgSetUserHoloStr& msg )
+{
+    Item* holodisk = msg.holodisk;
+    const char* title = msg.title;
+    const char* text = msg.text;
+    ushort title_len = msg.title_len;
+    ushort text_len = msg.text_len;
+#else
 void FOServer::Process_SetUserHoloStr( Client* cl )
 {
     uint   msg_len;
@@ -3783,6 +3908,7 @@ void FOServer::Process_SetUserHoloStr( Client* cl )
 //	int invalid_chars=CheckStr(text);
 //	if(invalid_chars>0) WriteLogF(_FUNC_," - Found invalid chars, count<%u>, client<%s>, changed on '_'.\n",invalid_chars,cl->GetInfo());
 
+#endif // CORRODED_NET
     HolodiskLocker.Lock();
 
     uint      holo_id = holodisk->HolodiskGetNum();
@@ -3807,6 +3933,7 @@ void FOServer::Process_SetUserHoloStr( Client* cl )
     cl->Send_TextMsg( cl, STR_HOLO_WRITE_SUCC, SAY_NETMSG, TEXTMSG_HOLO );
 }
 
+#ifndef CORRODED_NET
 #pragma MESSAGE("Check aviability of requested holodisk.")
 void FOServer::Process_GetUserHoloStr( Client* cl )
 {
@@ -3821,7 +3948,9 @@ void FOServer::Process_GetUserHoloStr( Client* cl )
 
     Send_PlayerHoloInfo( cl, str_num / 10, ( str_num % 10 ) != 0 );
 }
+#endif // CORRODED_NET
 
+#ifndef CORRODED_NET
 void FOServer::Process_LevelUp( Client* cl )
 {
     uint    msg_len;
@@ -3875,7 +4004,9 @@ void FOServer::Process_LevelUp( Client* cl )
     cl->Send_Param( ST_UNSPENT_SKILL_POINTS );
     cl->Send_Param( ST_UNSPENT_PERKS );
 }
+#endif // CORRODED_NET
 
+#ifndef CORRODED_NET
 void FOServer::Process_Ping( Client* cl )
 {
     uchar ping;
@@ -3920,7 +4051,15 @@ void FOServer::Process_Ping( Client* cl )
     cl->Bout << ping;
     BOUT_END( cl );
 }
+#endif // CORRODED_NET
 
+#ifdef CORRODED_NET
+void FOServer::Process_PlayersBarter( Client* cl, const NetmsgPlayersBarter& msg )
+{
+    uchar barter = msg.barter;
+    uint  param = msg.param;
+    uint  param_ext = msg.param_ext;
+#else
 void FOServer::Process_PlayersBarter( Client* cl )
 {
     uchar barter;
@@ -3931,8 +4070,8 @@ void FOServer::Process_PlayersBarter( Client* cl )
     cl->Bin >> param;
     cl->Bin >> param_ext;
     CHECK_IN_BUFF_ERROR( cl );
-
 // WriteLog("Barter<%s,%u,%u,%u>.\n",cl->GetName(),barter,param,param_ext);
+#endif // CORRODED_NET
 
     if( barter == BARTER_TRY || barter == BARTER_ACCEPTED )
     {
@@ -4150,6 +4289,7 @@ label_EndOffer:
     }
 }
 
+#ifndef CORRODED_NET
 void FOServer::Process_ScreenAnswer( Client* cl )
 {
     uint answer_i;
@@ -4176,7 +4316,9 @@ void FOServer::Process_ScreenAnswer( Client* cl )
     Script::RunPrepared();
     lexems->Release();
 }
+#endif // CORRODED_NET
 
+#ifndef CORRODED_NET
 void FOServer::Process_Combat( Client* cl )
 {
     uchar type;
@@ -4212,7 +4354,9 @@ void FOServer::Process_Combat( Client* cl )
         WriteLogF( _FUNC_, " - Unknown type<%u>, value<%d>, client<%s>.\n", type, val, cl->GetInfo() );
     }
 }
+#endif // CORRODED_NET
 
+#ifndef CORRODED_NET
 void FOServer::Process_RunServerScript( Client* cl )
 {
     uint          msg_len;
@@ -4295,7 +4439,9 @@ void FOServer::Process_RunServerScript( Client* cl )
     if( p4 )
         p4->Release();
 }
+#endif // CORRODED_NET
 
+#ifndef CORRODED_NET
 void FOServer::Process_KarmaVoting( Client* cl )
 {
     uint crid;
@@ -4325,6 +4471,7 @@ void FOServer::Process_KarmaVoting( Client* cl )
         Script::RunPrepared();
     }
 }
+#endif // CORRODED_NET
 
 #ifndef DISABLE_AVATARS
 void FOServer::Process_PrepareSendFileToServer( Client* cl )
@@ -4519,13 +4666,22 @@ void FOServer::Proccess_SendFilePartToClient(Client* cl)
 }
 #endif // DISABLE_AVATARS
 
+#ifndef CORRODED_NET
 void FOServer::Process_GiveGlobalInfo( Client* cl )
 {
     //	uchar info_flags;
     //	cl->Bin >> info_flags;
     //	cl->Send_GlobalInfo(info_flags);
 }
+#endif // CORRODED_NET
 
+#ifdef CORRODED_NET
+void FOServer::Process_RuleGlobal( Client* cl, const NetmsgRuleGlobal& msg )
+{
+    uchar command = msg.command;
+    uint  param1 = msg.param1;
+    uint  param2 = msg.param2;
+#else
 void FOServer::Process_RuleGlobal( Client* cl )
 {
     uchar command;
@@ -4534,6 +4690,7 @@ void FOServer::Process_RuleGlobal( Client* cl )
     cl->Bin >> command;
     cl->Bin >> param1;
     cl->Bin >> param2;
+#endif // CORRODED_NET
 
     switch( command )
     {
@@ -4702,7 +4859,7 @@ void FOServer::Process_RuleGlobal( Client* cl )
                 }
             }
             arr->Release();
-
+        #ifndef CORRODED_NET
             uint msg = NETMSG_GLOBAL_ENTRANCES;
             uint msg_len = sizeof( msg ) + sizeof( msg_len ) + sizeof( loc_id ) + sizeof( count ) + sizeof( uchar ) * count;
 
@@ -4714,9 +4871,13 @@ void FOServer::Process_RuleGlobal( Client* cl )
             for( uchar i = 0; i < count; i++ )
                 cl->Bout << show[ i ];
             BOUT_END( cl );
+        #else
+            cl->Send_GlobalEntrances(loc_id, count, show);
+        #endif // CORRODED_NET
         }
         else
         {
+        #ifndef CORRODED_NET
             uint  msg = NETMSG_GLOBAL_ENTRANCES;
             uchar count = (uchar) loc->Proto->Entrance.size();
             uint  msg_len = sizeof( msg ) + sizeof( msg_len ) + sizeof( loc_id ) + sizeof( count ) + sizeof( uchar ) * count;
@@ -4729,6 +4890,13 @@ void FOServer::Process_RuleGlobal( Client* cl )
             for( uchar i = 0; i < count; i++ )
                 cl->Bout << i;
             BOUT_END( cl );
+        #else
+            uchar count = (uchar) loc->Proto->Entrance.size();
+            uchar        show[ 0x100 ];
+            for( uchar i = 0; i < count; i++ )
+                show[i] = i;
+            cl->Send_GlobalEntrances(loc_id, count, show);
+        #endif // CORRODED_NET
         }
     }
     break;
@@ -4787,7 +4955,7 @@ void FOServer::Process_RuleGlobal( Client* cl )
     cl->SetBreakTime( GameOpt.Breaktime );
 }
 
-
+#ifndef CORRODED_NET
 void FOServer::Send_MsgData( Client* cl, uint lang, ushort num_msg, FOMsg& data_msg )
 {
     if( cl->IsSendDisabled() || cl->IsOffline() )
@@ -4805,7 +4973,9 @@ void FOServer::Send_MsgData( Client* cl, uint lang, ushort num_msg, FOMsg& data_
     cl->Bout.Push( data_msg.GetToSend(), data_msg.GetToSendLen() );
     BOUT_END( cl );
 }
+#endif // CORRODED_NET
 
+#ifndef CORRODED_NET
 void FOServer::Send_ProtoItemData( Client* cl, uchar type, ProtoItemVec& data, uint data_hash )
 {
     if( cl->IsSendDisabled() || cl->IsOffline() )
@@ -4822,3 +4992,4 @@ void FOServer::Send_ProtoItemData( Client* cl, uchar type, ProtoItemVec& data, u
     cl->Bout.Push( (char*) &data[ 0 ], (uint) data.size() * sizeof( ProtoItem ) );
     BOUT_END( cl );
 }
+#endif // CORRODED_NET

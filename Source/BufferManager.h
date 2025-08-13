@@ -1,3 +1,4 @@
+#ifndef CORRODED_NET
 #ifndef __BUFFER_MANAGER__
 #define __BUFFER_MANAGER__
 
@@ -380,3 +381,4 @@ public:
 #endif // ! FONLINE_MAPPER && ! DISABLE_AVATARS
 
 #endif // __BUFFER_MANAGER__
+#endif // CORRODED_NET

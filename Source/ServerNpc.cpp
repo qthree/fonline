@@ -1560,6 +1560,15 @@ void FOServer::Dialog_Begin( Client* cl, Npc* npc, uint dlg_pack_id, ushort hx, 
     SetScore( SCORE_SPEAKER, cl, 5 );
 }
 
+#ifdef CORRODED_NET
+void FOServer::Process_Dialog( Client* cl, const NetmsgDialog& msg )
+{
+    bool is_say = msg.is_say;
+    uchar is_npc = msg.is_npc;
+    uint  id_npc_talk = msg.id_npc_talk;
+    uchar num_answer = msg.num_answer;
+    const char* str = msg.text;
+#else
 void FOServer::Process_Dialog( Client* cl, bool is_say )
 {
     uchar is_npc;
@@ -1584,6 +1593,7 @@ void FOServer::Process_Dialog( Client* cl, bool is_say )
             return;
         }
     }
+#endif // CORRODED_NET
 
     if( cl->IsRawParam( MODE_HIDE ) )
     {
@@ -1851,6 +1861,27 @@ label_Barter:
     SetScore( SCORE_SPEAKER, cl, 5 );
 }
 
+#ifdef CORRODED_NET
+void FOServer::Process_Barter( Client* cl, const NetmsgBarter& msg )
+{
+    Npc* npc = msg.npc;
+    ushort  sale_count = msg.sale_count;
+    UIntVec sale_item_id(sale_count);
+    UIntVec sale_item_count(sale_count);
+    for( int i = 0; i < sale_count; ++i ) {
+        sale_item_id[i] = msg.sale_items[i * 2];
+        sale_item_count[i] = msg.sale_items[i * 2 + 1];
+    }
+
+    ushort  buy_count = msg.buy_count;
+    UIntVec buy_item_id(buy_count);
+    UIntVec buy_item_count(buy_count);
+    for( int i = 0; i < buy_count; ++i ) {
+        buy_item_id[i] = msg.buy_items[i * 2];
+        buy_item_count[i] = msg.buy_items[i * 2 + 1];
+    }
+    bool is_free = msg.is_free;
+#else
 void FOServer::Process_Barter( Client* cl )
 {
     uint    msg_len;
@@ -1960,7 +1991,7 @@ void FOServer::Process_Barter( Client* cl )
         cl->Send_ContainerInfo();
         return;
     }
-
+#endif // CORRODED_NET
     // Check cost
     int        barter_k = npc->GetRawParam( SK_BARTER ) - cl->GetRawParam( SK_BARTER );
     barter_k = CLAMP( barter_k, 5, 95 );

@@ -602,6 +602,9 @@ BIND_ASSERT( engine->RegisterObjectMethod( "Critter", "bool EventGlobalInvite(It
 BIND_ASSERT( engine->RegisterObjectMethod( "Critter", "void EventTurnBasedProcess(Map& map, bool beginTurn)", asFUNCTION( BIND_CLASS Crit_EventTurnBasedProcess ), asCALL_CDECL_OBJFIRST ) );
 BIND_ASSERT( engine->RegisterObjectMethod( "Critter", "void EventSmthTurnBasedProcess(Critter& fromCr, Map& map, bool beginTurn)", asFUNCTION( BIND_CLASS Crit_EventSmthTurnBasedProcess ), asCALL_CDECL_OBJFIRST ) );
 BIND_ASSERT( engine->RegisterObjectMethod( "Critter", "void SendCollectionFile( uint hash, int type, int p0 = 0, int p1 = 0, int p2 = 0, FileCollectionUploadFuncdef@+ func = null)", asFUNCTION(BIND_CLASS Crit_SendCollectionFile), asCALL_CDECL_OBJFIRST));
+#ifdef CORRODED_FILE_COLLECTION
+BIND_ASSERT( engine->RegisterObjectMethod( "Critter", "bool HasCollectionFile( uint hash, int type, bool owned = true)", asFUNCTION(BIND_CLASS Crit_HasCollectionFile), asCALL_CDECL_OBJFIRST))
+#endif // CORRODED_FILE_COLLECTION
 
 // Parameters
 BIND_ASSERT( engine->RegisterObjectProperty( "Critter", "const uint Id", OFFSETOF( Critter, Data ) + OFFSETOF( CritData, Id ) ) );
