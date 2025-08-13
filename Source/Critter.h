@@ -574,6 +574,69 @@ public:
     void AddRef()  { InterlockedIncrement( &RefCounter ); }
     void Release() { if( !InterlockedDecrement( &RefCounter ) ) Delete(); }
     void Delete();
+
+    #ifdef CORROSION
+    bool is_valid() const { return !IsNotValid; }
+    CritData const& GetDataRef() const { return Data; }
+    CritData & GetDataMut() { return Data; }
+    uint get_flags() const { return Flags; }
+    GlobalMapGroup* get_group_move() { return GroupMove; }
+    Item*& get_item_slot_main_mut() { return ItemSlotMain; }
+
+    Client * as_client_mut() { 
+        if( IsPlayer() ) {
+            return ( (Client*) this );
+        } else {
+            return NULL;
+        }
+    }
+    Client const* as_client_ref() const {
+        if( IsPlayer() ) {
+            return ( (Client const*) this );
+        } else {
+            return NULL;
+        }
+    }
+
+    struct SlotStatics {
+        size_t    Slots;
+        bool      const* SlotDataSendEnabled; //[ 0x100 ];
+        int       const* SlotDataSendScript; //[ 0x100 ];
+        bool      const* SlotEnabled; //[ 0x100 ];
+    };
+    static SlotStatics get_slot_statics() { return SlotStatics{0x100, SlotDataSendEnabled, SlotDataSendScript, SlotEnabled}; }
+
+    struct ParamStatics {
+        size_t    MaxParams;
+        size_t    MaxParametersArrays;
+        bool      const* ParamsRegEnabled; //[ MAX_PARAMS ];
+        UShortVec const* ParamsSend;
+        bool      const* ParamsSendEnabled; //[ MAX_PARAMS ];
+        int       const* ParamsSendScript; //[ MAX_PARAMS ];
+        int       const* ParamsChangeScript; //[ MAX_PARAMS ];
+        int       const* ParamsGetScript; //[ MAX_PARAMS ];
+        int       const* ParamsDialogGetScript; //[ MAX_PARAMS ];
+        uint      const* ParamsChosenSendMask; //[ MAX_PARAMS ];
+        uint      const* ParametersMin; //[ MAX_PARAMETERS_ARRAYS ];
+        uint      const* ParametersMax; //[ MAX_PARAMETERS_ARRAYS ];
+        bool      const* ParametersOffset; //[ MAX_PARAMETERS_ARRAYS ];
+    };
+    static ParamStatics get_param_statics() { return ParamStatics{
+        MAX_PARAMS,
+        MAX_PARAMETERS_ARRAYS,
+        ParamsRegEnabled,
+        &ParamsSend,
+        ParamsSendEnabled,
+        ParamsSendScript,
+        ParamsChangeScript,
+        ParamsGetScript,
+        ParamsDialogGetScript,
+        ParamsChosenSendMask,
+        ParametersMin,
+        ParametersMax,
+        ParametersOffset
+    }; }
+    #endif // CORROSION
 };
 
 class Client: public Critter
@@ -801,6 +864,19 @@ public:
     int ScreenCallbackBindId;
     uint LastVisionRefreshTick;
 
+    #ifdef CORROSION
+    bool is_valid() const { return !IsNotValid; }
+    bool is_ping_ok() const { return pingOk; }
+    void set_ping(bool ping, uint next_ping) {
+        pingOk = ping;
+        pingNextTick = Timer::FastTick() + next_ping;
+    }
+    Critter & as_critter_mut() { return *this; }
+    Critter const& as_critter_ref() const { return *this; }
+    const char* get_name()  const { return Name; }
+    const Talking& get_talking()  const { return Talk; }
+    #endif
+
     Client();
     ~Client();
 };
@@ -863,6 +939,12 @@ public:
 
     Npc();
     ~Npc();
+
+    #ifdef CORROSION
+    bool is_valid() const { return !IsNotValid; }
+    Critter & as_critter_mut() { return *this; }
+    Critter const& as_critter_ref() const { return *this; }
+    #endif
 };
 
 #endif // __CRITTER__

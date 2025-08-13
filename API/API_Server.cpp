@@ -117,6 +117,10 @@ ServerGameOptions* Server_GameOptions() {
     return &GameOpt;
 }
 
+ServerScriptFunctions* Server_ServerFunctions() {
+    return &ServerFunctions;
+}
+
 #ifdef SERVER_LIB
 #include "Version.h" 
 #include <sys/stat.h>

@@ -23,6 +23,7 @@ EXPORT const ServerStatistics* Server_Statistics();
 EXPORT uint Timer_GameTick();
 EXPORT uint Timer_FastTick();
 EXPORT ServerGameOptions* Server_GameOptions();
+EXPORT ServerScriptFunctions* Server_ServerFunctions();
 
 #ifdef SERVER_LIB
 EXPORT int Global_StartServerLib( int argc, const void* argv );

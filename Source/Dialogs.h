@@ -76,6 +76,11 @@ public:
 
     #ifdef FONLINE_NPCEDITOR
     DialogAnswer(): Link( 0 ), TextId( 0 ) {}
+    #elif defined(CORROSION)
+    DialogAnswer(): Link( 0 ), TextId( 0 ) {}
+    DialogAnswer( DialogAnswer&& r ) = default;
+    DialogAnswer( const DialogAnswer& r ) = default;
+    DialogAnswer& operator=(const DialogAnswer& other) = default;
     #else
     DialogAnswer(): Link( 0 ), TextId( 0 ) { MEMORY_PROCESS( MEMORY_DIALOG, sizeof( DialogAnswer ) ); }
     DialogAnswer( const DialogAnswer& r )
@@ -121,6 +126,12 @@ public:
     ~Dialog() { MEMORY_PROCESS( MEMORY_DIALOG, -(int) sizeof( Dialog ) ); }
     #endif
     bool operator==( const uint& r ) { return Id == r; }
+
+    #ifdef CORROSION
+    const AnswersVec& get_answers() const {
+        return Answers;
+    }
+    #endif // CORROSION
 };
 typedef vector< Dialog > DialogsVec;
 
@@ -174,6 +185,15 @@ struct Talking
         Lexems = "";
         Locked = false;
     }
+
+    #ifdef CORROSION
+    const string& get_lexems() const {
+        return Lexems;
+    }
+    const Dialog& get_cur_dialog() const {
+        return CurDialog;
+    }
+    #endif // CORROSION
 };
 
 class DialogManager
