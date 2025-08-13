@@ -16,6 +16,7 @@ int                         FOServer::UpdateIndex = -1;
 int                         FOServer::UpdateLastIndex = -1;
 uint                        FOServer::UpdateLastTick = 0;
 ClVec                       FOServer::LogClients;
+#ifndef CORRODED_NET
 Thread                      FOServer::ListenThread;
 SOCKET                      FOServer::ListenSock = INVALID_SOCKET;
 #if defined ( USE_LIBEVENT )
@@ -27,6 +28,7 @@ HANDLE                      FOServer::NetIOCompletionPort = NULL;
 Thread*                     FOServer::NetIOThreads = NULL;
 uint                        FOServer::NetIOThreadsCount = 0;
 #endif
+#endif // CORRODED_NET
 ClVec                       FOServer::ConnectedClients;
 Mutex                       FOServer::ConnectedClientsLocker;
 FOServer::Statistics_       FOServer::Statistics;
@@ -139,7 +141,7 @@ void FOServer::Finish()
         cl->Disconnect();
     }
     ConnectedClientsLocker.Unlock();
-
+#ifndef CORRODED_NET
     // Listen
     shutdown( ListenSock, SD_BOTH );
     closesocket( ListenSock );
@@ -166,6 +168,7 @@ void FOServer::Finish()
     CloseHandle( NetIOCompletionPort );
     NetIOCompletionPort = NULL;
     #endif
+#endif // CORRODED_NET
 
     // Managers
     AIMngr.Finish();
@@ -629,6 +632,7 @@ void FOServer::Logic_Work( void* data )
             Client* cl = (Client*) job.Data;
             SYNC_LOCK( cl );
 
+        #ifndef CORRODED_NET
             // Disconnect
             if( cl->IsOffline() )
             {
@@ -659,8 +663,18 @@ void FOServer::Logic_Work( void* data )
             if( cl->Sock == INVALID_SOCKET &&
                 InterlockedCompareExchange( &cl->NetIOIn->Operation, 0, 0 ) == WSAOP_FREE &&
                 InterlockedCompareExchange( &cl->NetIOOut->Operation, 0, 0 ) == WSAOP_FREE )
-            #endif
+            #endif 
             {
+        #else // CORRODED_NET
+            if( cl->IsOffline() )
+            {
+                cl->ReleaseNet();
+            }
+            
+            if (!cl->HasNet())
+            {
+        #endif // CORRODED_NET
+                
                 DisconnectClient( cl );
 
                 ConnectedClientsLocker.Lock();
@@ -885,6 +899,14 @@ void FOServer::Logic_Work( void* data )
     Script::FinishThread();
 }
 
+#ifdef CORRODED_NET
+static void FOServer::AddConnectedClient(Client* cl) {
+    ConnectedClientsLocker.Lock();
+    ConnectedClients.push_back( cl );
+    Statistics.CurOnline++;
+    ConnectedClientsLocker.Unlock();
+}
+#else
 void FOServer::Net_Listen( void* )
 {
     while( true )
@@ -1000,7 +1022,7 @@ void FOServer::Net_Listen( void* )
         # if !defined ( LIBEVENT_TIMEOUTS_WORKAROUND )
         timeval tv = { 0, 5 * 1000 };  // Check output data every 5ms
         bufferevent_set_timeouts( bev, NULL, &tv );
-        # endif
+        # endif // !LIBEVENT_TIMEOUTS_WORKAROUND
 
         // Setup bandwidth
         const uint                  rate = 100000; // 100kb per second
@@ -1021,7 +1043,7 @@ void FOServer::Net_Listen( void* )
         // Begin handle net events
         bufferevent_enable( bev, EV_WRITE | EV_READ );
         bufferevent_unlock( bev );
-        #endif
+        #endif // USE_LIBEVENT
 
         // Add job
         Job::PushBack( JOB_CLIENT, cl );
@@ -1810,7 +1832,15 @@ void FOServer::Process( ClientPtr& cl )
         }
     }
 }
+#endif // CORRODED_NET
 
+#ifdef CORRODED_NET
+void FOServer::Process_Text( Client* cl, const NetmsgText& msg )
+{
+    uchar  how_say = msg.how_say;
+    ushort len = msg.len;
+    const char* str = msg.text;
+#else
 void FOServer::Process_Text( Client* cl )
 {
     uint   msg_len = 0;
@@ -1833,6 +1863,7 @@ void FOServer::Process_Text( Client* cl )
     cl->Bin.Pop( str, len );
     str[ len ] = '\0';
     CHECK_IN_BUFF_ERROR( cl );
+#endif // CORRODED_NET
 
     if( !cl->IsLife() && how_say >= SAY_NORM && how_say <= SAY_RADIO )
         how_say = SAY_WHISP;
@@ -1981,6 +2012,7 @@ void FOServer::Process_Text( Client* cl )
     }
 }
 
+#ifndef CORRODED_NET
 void FOServer::Process_Command( BufferManager& buf, void ( * logcb )( const char* ), Client* cl_, const char* admin_panel )
 {
     uint  msg_len = 0;
@@ -3188,6 +3220,7 @@ void FOServer::Process_Command( BufferManager& buf, void ( * logcb )( const char
         break;
     }
 }
+#endif // CORRODED_NET
 
 void FOServer::SaveGameInfoFile()
 {
@@ -3559,6 +3592,7 @@ bool FOServer::InitReal(ServerConfig &cfg)
     Statistics.DataCompressed = 1;
     Statistics.ServerStartTick = Timer::FastTick();
 
+#ifndef CORRODED_NET
     // Net
     #ifdef FO_WINDOWS
     WSADATA wsa;
@@ -3693,13 +3727,16 @@ bool FOServer::InitReal(ServerConfig &cfg)
 
     Client::SendData = &NetIO_Output;
     #endif
+#endif // CORRODED_NET
 
     // Start script
     if( !Script::PrepareContext( ServerFunctions.Start, _FUNC_, "Game" ) || !Script::RunPrepared() || !Script::GetReturnedBool() )
     {
         WriteLogF( _FUNC_, " - Start script fail.\n" );
+    #ifndef CORRODED_NET
         shutdown( ListenSock, SD_BOTH );
         closesocket( ListenSock );
+    #endif // CORRODED_NET
         return false;
     }
 
@@ -4856,6 +4893,7 @@ void FOServer::ClearScore( int score )
     BestScores[ score ].Value = 0;
 }
 
+#ifndef CORRODED_NET
 void FOServer::Process_GetScores( Client* cl )
 {
     uint tick = Timer::FastTick();
@@ -4874,6 +4912,7 @@ void FOServer::Process_GetScores( Client* cl )
     cl->Bout.Push( scores, SCORE_NAME_LEN * SCORES_MAX );
     BOUT_END( cl );
 }
+#endif // CORRODED_NET
 
 /************************************************************************/
 /*                                                                      */

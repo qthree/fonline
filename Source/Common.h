@@ -85,6 +85,12 @@ const char* GetLastSocketError();
 #include "FileSystem.h"
 #include "AngelScript/scriptstring.h"
 
+#ifdef CORROSION 
+#define NOEXCEPT noexcept
+#else
+#define NOEXCEPT
+#endif //CORROSION 
+
 #define ___MSG1( x )                      # x
 #define ___MSG0( x )                      ___MSG1( x )
 #define MESSAGE( desc )                   message( __FILE__ "(" ___MSG0( __LINE__ ) "):" # desc )

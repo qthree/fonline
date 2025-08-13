@@ -400,9 +400,9 @@ public:
     void SendA_ParamCheck( ushort num_param );
 
     // Chosen data
-    void Send_AddAllItems();
-    void Send_AllQuests();
-    void Send_AllAutomapsInfo();
+    void Send_AddAllItems() NOEXCEPT;
+    void Send_AllQuests() NOEXCEPT;
+    void Send_AllAutomapsInfo() NOEXCEPT;
 
     bool        IsPlayer()    const { return !CritterIsNpc; }
     bool        IsNpc()       const { return CritterIsNpc; }
@@ -608,6 +608,14 @@ public:
     #endif // CORROSION
 };
 
+#ifdef CORRODED_NET
+namespace CorrodedNet {
+    struct ClientIo {};
+    extern void ReleaseIo(ClientIo const*& net) noexcept;
+};
+using c_void = void;
+#endif // CORRODED_NET
+
 class Client: public Critter
 {
 public:
@@ -616,22 +624,64 @@ public:
     uchar         Access;
     uint          LanguageMsg;
     uint          UID[ 5 ];
+#ifndef CORRODED_NET
     SOCKET        Sock;
     sockaddr_in   From;
     BufferManager Bin, Bout;
     UCharVec      NetIOBuffer;
+#else
+    uint          __Sock;
+    sockaddr_in   From;
+    uint          __BinBout[252 * 2 / 4];
+    uint          __NetIOBuffer[3];
+#endif // CORRODED_NET
     int           GameState;
     bool          IsDisconnected;
     uint          DisconnectTick;
+#ifndef CORRODED_NET
     bool          DisableZlib;
     z_stream      Zstrm;
     bool          ZstrmInit;
+#else
+    bool          __DisableZlibPlaceholder;
+    char          __Zstrm[sizeof(z_stream)];
+    bool          __ZstrmInit;
+
+    # define BIN_BEGIN( cl_ ) (void)0
+    # define BIN_END( cl_ ) (void)0
+    # define BOUT_BEGIN( cl_ ) (void)0
+    # define BOUT_END( cl_ ) (void)0
+#endif // CORRODED_NET
     uint          ConnectTime;
     uint          LastSendedMapTick;
     char          LastSay[ MAX_NET_TEXT + 1 ];
     uint          LastSayEqualCount;
     uint          RadioMessageSended;
 
+#ifdef CORRODED_NET
+    CorrodedNet::ClientIo const* corroded_net;
+
+    const CorrodedNet::ClientIo* GetNet() const { return corroded_net; }
+    bool HasNet() const { 
+        return (corroded_net != NULL);
+    }
+    void SetNet(CorrodedNet::ClientIo const* net) {
+        ReleaseNet();
+        corroded_net = net;
+    }
+    void ReleaseNet() { 
+        if (corroded_net != NULL) {
+            CorrodedNet::ReleaseIo(corroded_net);
+        }
+    }
+    void SwapNet(Client* other) {
+        std::swap( this->corroded_net, other->corroded_net );
+        std::swap( this->IsDisconnected, other->IsDisconnected );
+        std::swap( this->DisconnectTick, other->DisconnectTick );
+        std::swap( this->From, other->From );
+        std::swap( this->ConnectTime, other->ConnectTime );
+    }
+#else
     #if defined ( USE_LIBEVENT )
     struct NetIOArg
     {
@@ -690,6 +740,7 @@ public:
             ( *Client::SendData )( cl_->NetIOOut )
     #endif
     void Shutdown();
+#endif // CORRODED_NET
 
 public:
     uint        GetIp();
@@ -713,8 +764,8 @@ private:
     bool pingOk;
 
 public:
-    bool IsToPing() { return GameState == STATE_PLAYING && Timer::FastTick() >= pingNextTick && !GetParam( TO_TRANSFER ) && !Singleplayer; }
-    void PingClient();
+    bool IsToPing() { return IsOnline() && GameState == STATE_PLAYING && Timer::FastTick() >= pingNextTick && !GetParam( TO_TRANSFER ) && !Singleplayer; }
+    void PingClient() NOEXCEPT;
     void PingOk( uint next_ping )
     {
         pingOk = true;
@@ -722,67 +773,71 @@ public:
     }
 
     // Sends
-    void Send_Move( Critter* from_cr, uint move_params );
-    void Send_Dir( Critter* from_cr );
-    void Send_AddCritter( Critter* cr );
-    void Send_RemoveCritter( Critter* cr );
-    void Send_LoadMap( Map* map );
-    void Send_XY( Critter* cr );
-    void Send_AddItemOnMap( Item* item );
-    void Send_ChangeItemOnMap( Item* item );
-    void Send_EraseItemFromMap( Item* item );
-    void Send_AnimateItem( Item* item, uchar from_frm, uchar to_frm );
-    void Send_AddItem( Item* item );
-    void Send_EraseItem( Item* item );
-    void Send_ContainerInfo();
-    void Send_ContainerInfo( Item* item_cont, uchar transfer_type, bool open_screen );
-    void Send_ContainerInfo( Critter* cr_cont, uchar transfer_type, bool open_screen );
-    void Send_GlobalInfo( uchar flags );
-    void Send_GlobalLocation( Location* loc, bool add );
-    void Send_GlobalMapFog( ushort zx, ushort zy, uchar fog );
-    void Send_AllParams();
-    void Send_Param( ushort num_param );
-    void Send_ParamOther( ushort num_param, int val );
-    void Send_CritterParam( Critter* cr, ushort num_param, int val );
-    void Send_Talk();
-    void Send_GameInfo( Map* map );
-    void Send_Text( Critter* from_cr, const char* s_str, uchar how_say );
-    void Send_TextEx( uint from_id, const char* s_str, ushort str_len, uchar how_say, ushort intellect, bool unsafe_text );
-    void Send_TextMsg( Critter* from_cr, uint str_num, uchar how_say, ushort num_msg );
-    void Send_TextMsg( uint from_id, uint str_num, uchar how_say, ushort num_msg );
-    void Send_TextMsgLex( Critter* from_cr, uint num_str, uchar how_say, ushort num_msg, const char* lexems );
-    void Send_TextMsgLex( uint from_id, uint num_str, uchar how_say, ushort num_msg, const char* lexems );
-    void Send_Action( Critter* from_cr, int action, int action_ext, Item* item );
-    void Send_Knockout( Critter* from_cr, uint anim2begin, uint anim2idle, ushort knock_hx, ushort knock_hy );
-    void Send_MoveItem( Critter* from_cr, Item* item, uchar action, uchar prev_slot );
-    void Send_ItemData( Critter* from_cr, uchar slot, Item* item, bool ext_data );
-    void Send_Animate( Critter* from_cr, uint anim1, uint anim2, Item* item, bool clear_sequence, bool delay_play );
-    void Send_SetAnims( Critter* from_cr, int cond, uint anim1, uint anim2 );
-    void Send_CombatResult( uint* combat_res, uint len );
-    void Send_Quest( uint num );
-    void Send_Quests( UIntVec& nums );
-    void Send_HoloInfo( bool clear, ushort offset, ushort count );
-    void Send_AutomapsInfo( void* locs_vec, Location* loc );
-    void Send_Follow( uint rule, uchar follow_type, ushort map_pid, uint follow_wait );
-    void Send_Effect( ushort eff_pid, ushort hx, ushort hy, ushort radius );
-    void Send_FlyEffect( ushort eff_pid, uint from_crid, uint to_crid, ushort from_hx, ushort from_hy, ushort to_hx, ushort to_hy );
-    void Send_PlaySound( uint crid_synchronize, const char* sound_name );
-    void Send_PlaySoundType( uint crid_synchronize, uchar sound_type, uchar sound_type_ext, uchar sound_id, uchar sound_id_ext );
-    void Send_CritterLexems( Critter* cr );
-    void Send_MapText( ushort hx, ushort hy, uint color, const char* text, ushort text_len, ushort intellect, bool unsafe_text );
-    void Send_MapTextMsg( ushort hx, ushort hy, uint color, ushort num_msg, uint num_str );
-    void Send_MapTextMsgLex( ushort hx, ushort hy, uint color, ushort num_msg, uint num_str, const char* lexems, ushort lexems_len );
-    void Send_UserHoloStr( uint str_num, const char* text, ushort text_len );
-    void Send_PlayersBarter( uchar barter, uint param, uint param_ext );
-    void Send_PlayersBarterSetHide( Item* item, uint count );
-    void Send_ShowScreen( int screen_type, uint param, bool need_answer );
-    void Send_RunClientScript( const char* func_name, int p0, int p1, int p2, const char* p3, UIntVec& p4 );
-    void Send_DropTimers();
-    void Send_ViewMap();
-    void Send_ItemLexems( Item* item );     // Without checks!
-    void Send_ItemLexemsNull( Item* item ); // Without checks!
-    void Send_CheckUIDS();
-    void Send_SomeItem( Item* item );       // Without checks!
+    void Send_Move( Critter* from_cr, uint move_params ) NOEXCEPT;
+    void Send_Dir( Critter* from_cr ) NOEXCEPT;
+    void Send_AddCritter( Critter* cr ) NOEXCEPT;
+    void Send_RemoveCritter( Critter* cr ) NOEXCEPT;
+    void Send_LoadMap( Map* map ) NOEXCEPT;
+    void Send_XY( Critter* cr ) NOEXCEPT;
+    void Send_AddItemOnMap( Item* item ) NOEXCEPT;
+    void Send_ChangeItemOnMap( Item* item ) NOEXCEPT;
+    void Send_EraseItemFromMap( Item* item ) NOEXCEPT;
+    void Send_AnimateItem( Item* item, uchar from_frm, uchar to_frm ) NOEXCEPT;
+    void Send_AddItem( Item* item ) NOEXCEPT;
+    void Send_EraseItem( Item* item ) NOEXCEPT;
+    void Send_ContainerInfo() NOEXCEPT;
+    void Send_ContainerInfo( Item* item_cont, uchar transfer_type, bool open_screen ) NOEXCEPT;
+    void Send_ContainerInfo( Critter* cr_cont, uchar transfer_type, bool open_screen ) NOEXCEPT;
+    void Send_GlobalInfo( uchar flags ) NOEXCEPT;
+    void Send_GlobalLocation( Location* loc, bool add ) NOEXCEPT;
+    void Send_GlobalMapFog( ushort zx, ushort zy, uchar fog ) NOEXCEPT;
+    void Send_AllParams() NOEXCEPT;
+    void Send_Param( ushort num_param ) NOEXCEPT;
+    void Send_ParamOther( ushort num_param, int val ) NOEXCEPT;
+    void Send_CritterParam( Critter* cr, ushort num_param, int val ) NOEXCEPT;
+    void Send_Talk() NOEXCEPT;
+    void Send_GameInfo( Map* map ) NOEXCEPT;
+    void Send_Text( Critter* from_cr, const char* s_str, uchar how_say ) NOEXCEPT;
+    void Send_TextEx( uint from_id, const char* s_str, ushort str_len, uchar how_say, ushort intellect, bool unsafe_text ) NOEXCEPT;
+    void Send_TextMsg( Critter* from_cr, uint str_num, uchar how_say, ushort num_msg ) NOEXCEPT;
+    void Send_TextMsg( uint from_id, uint str_num, uchar how_say, ushort num_msg ) NOEXCEPT;
+    void Send_TextMsgLex( Critter* from_cr, uint num_str, uchar how_say, ushort num_msg, const char* lexems ) NOEXCEPT;
+    void Send_TextMsgLex( uint from_id, uint num_str, uchar how_say, ushort num_msg, const char* lexems ) NOEXCEPT;
+    void Send_Action( Critter* from_cr, int action, int action_ext, Item* item ) NOEXCEPT;
+    void Send_Knockout( Critter* from_cr, uint anim2begin, uint anim2idle, ushort knock_hx, ushort knock_hy ) NOEXCEPT;
+    void Send_MoveItem( Critter* from_cr, Item* item, uchar action, uchar prev_slot ) NOEXCEPT;
+    void Send_ItemData( Critter* from_cr, uchar slot, Item* item, bool ext_data ) NOEXCEPT;
+    void Send_Animate( Critter* from_cr, uint anim1, uint anim2, Item* item, bool clear_sequence, bool delay_play ) NOEXCEPT;
+    void Send_SetAnims( Critter* from_cr, int cond, uint anim1, uint anim2 ) NOEXCEPT;
+    void Send_CombatResult( uint* combat_res, uint len ) NOEXCEPT;
+    void Send_Quest( uint num ) NOEXCEPT;
+    void Send_Quests( UIntVec& nums ) NOEXCEPT;
+    void Send_HoloInfo( bool clear, ushort offset, ushort count ) NOEXCEPT;
+    void Send_AutomapsInfo( void* locs_vec, Location* loc ) NOEXCEPT;
+    void Send_Follow( uint rule, uchar follow_type, ushort map_pid, uint follow_wait ) NOEXCEPT;
+    void Send_Effect( ushort eff_pid, ushort hx, ushort hy, ushort radius ) NOEXCEPT;
+    void Send_FlyEffect( ushort eff_pid, uint from_crid, uint to_crid, ushort from_hx, ushort from_hy, ushort to_hx, ushort to_hy ) NOEXCEPT;
+    void Send_PlaySound( uint crid_synchronize, const char* sound_name ) NOEXCEPT;
+    void Send_PlaySoundType( uint crid_synchronize, uchar sound_type, uchar sound_type_ext, uchar sound_id, uchar sound_id_ext ) NOEXCEPT;
+    void Send_CritterLexems( Critter* cr ) NOEXCEPT;
+    void Send_MapText( ushort hx, ushort hy, uint color, const char* text, ushort text_len, ushort intellect, bool unsafe_text ) NOEXCEPT;
+    void Send_MapTextMsg( ushort hx, ushort hy, uint color, ushort num_msg, uint num_str ) NOEXCEPT;
+    void Send_MapTextMsgLex( ushort hx, ushort hy, uint color, ushort num_msg, uint num_str, const char* lexems, ushort lexems_len ) NOEXCEPT;
+    void Send_UserHoloStr( uint str_num, const char* text, ushort text_len ) NOEXCEPT;
+    void Send_PlayersBarter( uchar barter, uint param, uint param_ext ) NOEXCEPT;
+    void Send_PlayersBarterSetHide( Item* item, uint count ) NOEXCEPT;
+    void Send_ShowScreen( int screen_type, uint param, bool need_answer ) NOEXCEPT;
+    void Send_RunClientScript( const char* func_name, int p0, int p1, int p2, const char* p3, UIntVec& p4 ) NOEXCEPT;
+    void Send_DropTimers() NOEXCEPT;
+    void Send_ViewMap() NOEXCEPT;
+    void Send_ItemLexems( Item* item ) NOEXCEPT;     // Without checks!
+    void Send_ItemLexemsNull( Item* item ) NOEXCEPT; // Without checks!
+    void Send_CheckUIDS() NOEXCEPT;
+    void Send_SomeItem( Item* item ) NOEXCEPT;       // Without checks!
+#ifdef CORRODED_NET
+    void Send_RegisterSuccess() NOEXCEPT;
+    void Send_GlobalEntrances( uint loc_id, uchar count, const uchar* show) NOEXCEPT;
+#endif // CORRODED_NET
 
     // Locations
     bool CheckKnownLocById( uint loc_id ) const;

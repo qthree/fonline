@@ -1,3 +1,4 @@
+#ifndef CORRODED_NET
 #ifndef __BUFFER_MANAGER__
 #define __BUFFER_MANAGER__
 
@@ -93,3 +94,4 @@ private:
 };
 
 #endif // __BUFFER_MANAGER__
+#endif // CORRODED_NET

@@ -25,6 +25,9 @@ ServerScriptFunctions* Server_ServerFunctions() {
 #include <sys/stat.h>
 FOServer Server;
 
+#ifdef CORRODED_NET
+extern "C" void start_corroded_net();
+#endif
 extern "C" void server_lib_log( char* str );
 
 static volatile uchar exit_code = 0;
@@ -49,7 +52,13 @@ uchar Global_StartServerLib( ServerConfig cfg )
     if( Server.Init(cfg) )
     {
         FOQuit = false;
-        Server.MainLoop();
+        #ifdef CORRODED_NET
+        start_corroded_net();
+        #endif
+        if( !FOQuit )
+        {
+            Server.MainLoop();
+        }
         Server.Finish();
     }
     else
