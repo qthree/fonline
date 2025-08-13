@@ -35,6 +35,9 @@ public:
     void     EraseCrit( Critter* cr );
     void     Clear();
     GlobalMapGroup() { Clear(); }
+#ifdef CORROSION
+    uint get_rule_id() const { return ( Rule == NULL ) ? 0 : Rule->GetId(); }
+#endif // CORROSION
 };
 typedef vector< GlobalMapGroup* > GMapGroupVec;
 

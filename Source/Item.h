@@ -310,6 +310,12 @@ public:
     bool operator==( const ushort& _r ) { return ( ProtoId == _r ); }
     ProtoItem() { Clear(); }
 
+    #ifdef CORROSION
+    ProtoItem( ProtoItem&& r ) = default;
+    ProtoItem( const ProtoItem& r ) = default;
+    ProtoItem& operator=(const ProtoItem& other) = default;
+    #endif // CORROSION
+
     #if defined ( FONLINE_CLIENT ) || defined ( FONLINE_MAPPER )
     uint GetCurSprId();
     #endif
@@ -630,6 +636,24 @@ public:
     int  TrapGetValue()    const { return Data.TrapValue; }
 
     bool operator==( const uint& id ) { return ( Id == id ); }
+
+    #ifdef CORROSION
+    static char const* get_send_mask() { return ItemData::SendMask[0]; }
+    ItemData const& get_data_ref() const { return Data; }
+    ItemData & get_data_mut() { return Data; }
+    char const* get_lexems() const { return PLexems; }
+
+    struct Acc {
+        uchar AccBuffer[ 8 ];
+        uchar Accessory;
+    };
+    Acc get_acc() const {
+        Acc acc;
+        acc.Accessory = Accessory;
+        memcpy(acc.AccBuffer, AccBuffer, 8);
+        return acc;
+    }
+    #endif
 
     #ifdef FONLINE_SERVER
     Item()

@@ -171,7 +171,7 @@ class ProtoMap
 {
 public:
     // Header
-    struct
+    struct ProtoHeader
     {
         uint   Version;
         ushort MaxHexX, MaxHexY;
@@ -293,6 +293,12 @@ public:
     bool        IsInit()  { return isInit; }
     ushort      GetPid()  const { return isInit ? pmapPid : 0; }
     const char* GetName() { return pmapName.c_str(); }
+
+#ifdef CORROSION
+    TileVec const& GetTiles() const { return Tiles; }
+    SceneryClVec const& GetWallsToSend() const { return WallsToSend; }
+    SceneryClVec const& GetSceneriesToSend() const { return SceneriesToSend; }
+#endif
 
     long RefCounter;
     void AddRef()  { ++RefCounter; }

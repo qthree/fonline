@@ -105,6 +105,11 @@ public:
 
     inline uint   GetId() const  { return Data.MapId; }
     inline ushort GetPid() const { return Data.MapPid; }
+#ifdef CORROSION
+    inline ProtoMap const& get_proto() const { return *Proto; }
+    inline MapData const& get_map_data_ref() const { return Data; }
+    inline MapData & get_map_data_mut() { return Data; }
+#endif
 
     void AddCritter( Critter* cr );
     void AddCritterEvents( Critter* cr );
@@ -323,6 +328,10 @@ public:
         if( RefCounter <= 0 ) delete this;
     }
     Location(): RefCounter( 1 ), Proto( NULL ), IsNotValid( false ) { memzero( (void*) &Data, sizeof( Data ) ); }
+
+    #ifdef CORROSION
+    LocData const& get_data_ref() const { return Data; }
+    #endif // CORROSION
 };
 typedef map< uint, Location* > LocMap;
 typedef vector< Location* >    LocVec;
