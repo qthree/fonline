@@ -3179,6 +3179,7 @@ void Critter::SendA_ParamCheck( ushort num_param )
     }
 }
 
+#ifndef CORRODED_NET
 void Critter::Send_AddAllItems()
 {
     if( !IsPlayer() )
@@ -3225,6 +3226,7 @@ void Critter::Send_AllAutomapsInfo()
 
     Send_AutomapsInfo( &locs, NULL );
 }
+#endif // CORRODED_NET
 
 void Critter::SendMessage( int num, int val, int to )
 {
@@ -3666,12 +3668,12 @@ void Critter::Delete()
 /* Client                                                               */
 /************************************************************************/
 
-#if !defined ( USE_LIBEVENT ) || defined ( LIBEVENT_TIMEOUTS_WORKAROUND )
+#if !defined(CORRODED_NET) && (!defined ( USE_LIBEVENT ) || defined ( LIBEVENT_TIMEOUTS_WORKAROUND ))
 Client::SendCallback Client::SendData = NULL;
 #endif
 
-Client::Client(): ZstrmInit( false ), Access( ACCESS_DEFAULT ), pingOk( true ), LanguageMsg( 0 ),
-                  GameState( STATE_NONE ), IsDisconnected( false ), DisconnectTick( 0 ), DisableZlib( false ),
+Client::Client(): Access( ACCESS_DEFAULT ), pingOk( true ), LanguageMsg( 0 ),
+                  GameState( STATE_NONE ), IsDisconnected( false ), DisconnectTick( 0 ),
                   LastSendScoresTick( 0 ), LastSendCraftTick( 0 ), LastSendEntrancesTick( 0 ), LastSendEntrancesLocId( 0 ),
                   ScreenCallbackBindId( 0 ), ConnectTime( 0 ), LastSendedMapTick( 0 ), RadioMessageSended( 0 )
 {
@@ -3679,7 +3681,6 @@ Client::Client(): ZstrmInit( false ), Access( ACCESS_DEFAULT ), pingOk( true ), 
     MEMORY_PROCESS( MEMORY_CLIENT, sizeof( Client ) + sizeof( GlobalMapGroup ) + 40 + sizeof( Item ) * 2 );
 
     SETFLAG( Flags, FCRIT_PLAYER );
-    Sock = INVALID_SOCKET;
     memzero( Name, sizeof( Name ) );
     memzero( PassHash, sizeof( PassHash ) );
     Str::Copy( Name, "err" );
@@ -3690,6 +3691,14 @@ Client::Client(): ZstrmInit( false ), Access( ACCESS_DEFAULT ), pingOk( true ), 
     LastSay[ 0 ] = 0;
     LastSayEqualCount = 0;
     memzero( UID, sizeof( UID ) );
+
+#ifdef CORRODED_NET
+    __Sock = INVALID_SOCKET;
+    corroded_net = NULL;
+#else
+    Sock = INVALID_SOCKET;
+    ZstrmInit = false;
+    DisableZlib = false;
 
     #if defined ( USE_LIBEVENT )
     NetIOArgPtr = NULL;
@@ -3712,6 +3721,7 @@ Client::Client(): ZstrmInit( false ), Access( ACCESS_DEFAULT ), pingOk( true ), 
     NetIOOut->Flags = 0;
     NetIOOut->Bytes = 0;
     #endif
+#endif // CORRODED_NET
 }
 
 Client::~Client()
@@ -3722,6 +3732,9 @@ Client::~Client()
         MEMORY_PROCESS( MEMORY_CLIENT, -(int) sizeof( CritDataExt ) );
         SAFEDEL( DataExt );
     }
+#ifdef CORRODED_NET
+    ReleaseNet();
+#else
     if( ZstrmInit )
     {
         deflateEnd( &Zstrm );
@@ -3743,8 +3756,10 @@ Client::~Client()
         SAFEDEL( NetIOOut );
     }
     #endif
+#endif // CORRODED_NET
 }
 
+#ifndef CORRODED_NET
 void Client::Shutdown()
 {
     if( Sock == INVALID_SOCKET )
@@ -3775,6 +3790,7 @@ void Client::Shutdown()
     NetIOIn->Locker.Unlock();
     #endif
 }
+#endif // CORRODED_NET
 
 uint Client::GetIp()
 {
@@ -3791,6 +3807,7 @@ ushort Client::GetPort()
     return From.sin_port;
 }
 
+#ifndef CORRODED_NET
 void Client::PingClient()
 {
     if( !pingOk )
@@ -5183,6 +5200,7 @@ void Client::Send_LookData()
     }
     BOUT_END(this);
 }
+#endif // CORRODED_NET
 
 #ifndef DISABLE_AVATARS
 void Client::Send_CollectionFile(FileSendBuffer * filebuffer, int collection_type, int p0, int p1, int p2)

@@ -1,3 +1,4 @@
+#ifndef CORRODED_NET
 #include "StdAfx.h"
 #include "BufferManager.h"
 #include "NetProtocol.h"
@@ -1038,3 +1039,4 @@ bool BufferManager::IsValidMsg( uint msg )
     }
 }
 #endif
+#endif // CORRODED_NET

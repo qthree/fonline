@@ -16,6 +16,7 @@
 #include "CritterType.h"
 #include "NetProtocol.h"
 #include "Access.h"
+#include "Netmsg.h"
 
 #include "AngelScript/scriptfile.h"
 
@@ -50,6 +51,7 @@ public:
 
     // Net proccess
     static void Process_ParseToGame( Client* cl );
+#ifndef CORRODED_NET
     static void Process_Move( Client* cl );
     static void Process_CreateClient( Client* cl );
     static void Process_LogIn( ClientPtr& cl );
@@ -82,6 +84,20 @@ public:
     static void Process_Combat( Client* cl );
     static void Process_RunServerScript( Client* cl );
     static void Process_KarmaVoting( Client* cl );
+#else
+    static void Process_Move( Client* cl, const NetmsgMove& msg);
+    static void Process_CreateClient( Client* cl, const NetmsgRegister& msg);
+    static void Process_LogIn( ClientPtr& cl, const NetmsgLogin& msg );
+    static void Process_UseItem( Client* cl, const NetmsgUseItem& msg );
+    static void Process_PickCritter( Client* cl, uint crid, uchar pick_type );
+    static void Process_ContainerItem( Client* cl, const NetmsgContainerItem& msg );
+    static void Process_RuleGlobal( Client* cl, const NetmsgRuleGlobal& msg );
+    static void Process_Text( Client* cl, const NetmsgText& msg );
+    static void Process_Dialog( Client* cl, const NetmsgDialog& msg );
+    static void Process_Barter( Client* cl, const NetmsgBarter& msg );
+    static void Process_SetUserHoloStr( Client* cl, const NetmsgSetUserHoloStr& msg );
+    static void Process_PlayersBarter( Client* cl, const NetmsgPlayersBarter& msg );
+#endif // CORRODED_NET
 
 #ifndef DISABLE_AVATARS
     static void Process_PrepareSendFileToServer( Client* cl );
@@ -306,6 +322,9 @@ public:
     // Net IO
     static ClVec  ConnectedClients;
     static Mutex  ConnectedClientsLocker;
+#ifdef CORRODED_NET
+    static void AddConnectedClient(Client* cl);
+#else
     static SOCKET ListenSock;
     static Thread ListenThread;
 
@@ -329,6 +348,7 @@ public:
     static void NetIO_Input( Client::NetIOArg* io );
     static void NetIO_Output( Client::NetIOArg* io );
     #endif
+#endif // CORRODED_NET
 
     // Service
     static uint VarsGarbageLastTick;
@@ -744,6 +764,9 @@ public:
         static void Crit_EventTurnBasedProcess( Critter* cr, Map* map, bool begin_turn );
         static void Crit_EventSmthTurnBasedProcess( Critter* cr, Critter* from_cr, Map* map, bool begin_turn );
 		static void Crit_SendCollectionFile(Critter* cr, uint hash, int type, int p0, int p1, int p2, asIScriptFunction* func);
+        #ifdef CORRODED_FILE_COLLECTION
+        static bool Crit_HasCollectionFile(Critter* cr, uint hash, int type, bool owned );
+        #endif // CORRODED_FILE_COLLECTION
 
         static GameVar* Global_GetGlobalVar( ushort tvar_id );
         static GameVar* Global_GetLocalVar( ushort tvar_id, uint master_id );

@@ -138,6 +138,9 @@ bool FOServer::InitScriptSystem()
     // Load script modules
     Script::Undefine( NULL );
     Script::Define( "__SERVER" );
+#ifdef CORRODED_FILE_COLLECTION
+    Script::Define( "__CORRODED_FILE_COLLECTION" );
+#endif // CORRODED_FILE_COLLECTION
     if( !Script::ReloadScripts( (char*) scripts_cfg.GetBuf(), "server", false ) )
     {
         Script::Finish();
@@ -3638,6 +3641,7 @@ void FOServer::SScriptFunc::Crit_EventSmthTurnBasedProcess( Critter* cr, Critter
     cr->EventSmthTurnBasedProcess( from_cr, map, begin_turn );
 }
 
+#ifndef CORRODED_FILE_COLLECTION
 void FOServer::SScriptFunc::Crit_SendCollectionFile(Critter * cr, uint hash, int type, int p0, int p1, int p2, asIScriptFunction* func )
 {
 #ifndef DISABLE_AVATARS
@@ -3680,6 +3684,7 @@ void FOServer::SScriptFunc::Crit_SendCollectionFile(Critter * cr, uint hash, int
 	cr->Send_CollectionFile(buffer, type, p0, p1, p2);
 #endif // DISABLE_AVATARS
 }
+#endif // CORRODED_FILE_COLLECTION
 
 GameVar* FOServer::SScriptFunc::Global_GetGlobalVar( ushort tvar_id )
 {
