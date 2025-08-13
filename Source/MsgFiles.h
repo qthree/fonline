@@ -100,6 +100,15 @@ public:
 
     LanguagePack() { memset( NameStr, 0, sizeof( NameStr ) ); }
     bool operator==( const uint& r ) { return Name == r; }
+
+    #ifdef CORROSION
+    LanguagePack( LanguagePack&& r ) = default;
+    LanguagePack( const LanguagePack& r ) = default;
+    LanguagePack& operator=(const LanguagePack& other) = default;
+
+    uint get_name() const { return Name; }
+    FOMsg const* get_data_ref(size_t i) const { return (i < TEXTMSG_COUNT) ? &Msg[i] : NULL; }
+    #endif //CORROSION
 };
 typedef vector< LanguagePack > LangPackVec;
 

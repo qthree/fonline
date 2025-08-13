@@ -280,6 +280,9 @@ public:
     static bool InitLangPacksDialogs( LangPackVec& lang_packs );
     static void FinishLangPacks();
     static bool InitLangCrTypes( LangPackVec& lang_packs );
+    #ifdef CORROSION
+    static LangPackVec const* get_lang_packs() { return &LangPacks; }
+    #endif // CORROSION
 
     // Init/Finish
     static bool Init();
