@@ -75,12 +75,12 @@ public:
     void Unlock() { dataLocker.Unlock(); }
 
     Location* GetLocation( bool lock );
-    ushort    GetMaxHexX() { return Proto->Header.MaxHexX; }
-    ushort    GetMaxHexY() { return Proto->Header.MaxHexY; }
+    ushort    GetMaxHexX() const { return Proto->Header.MaxHexX; }
+    ushort    GetMaxHexY() const { return Proto->Header.MaxHexY; }
     void      SetLoopTime( uint loop_num, uint ms );
-    uchar     GetRain();
+    uchar     GetRain() const { return Data.MapRain; };
     void      SetRain( uchar capacity );
-    int       GetTime();
+    int       GetTime() const { return Data.MapTime; }
     void      SetTime( int time );
     uint      GetDayTime( uint day_part );
     void      SetDayTime( uint day_part, uint time );
@@ -102,8 +102,9 @@ public:
         Data.MapId = id;
         Data.MapPid = pid;
     }
-    uint   GetId()  { return Data.MapId; }
-    ushort GetPid() { return Data.MapPid; }
+
+    inline uint   GetId() const  { return Data.MapId; }
+    inline ushort GetPid() const { return Data.MapPid; }
 
     void AddCritter( Critter* cr );
     void AddCritterEvents( Critter* cr );
@@ -170,7 +171,7 @@ public:
     uint   GetPlayersCount();
     uint   GetNpcsCount();
 
-    bool IsNoLogOut() { return Proto->Header.NoLogOut; }
+    bool IsNoLogOut() const { return Proto->Header.NoLogOut; }
 
     // Sends
     void SendEffect( ushort eff_pid, ushort hx, ushort hy, ushort radius );
@@ -294,9 +295,9 @@ public:
     void       Clear( bool full );
     void       Update();
     bool       IsVisible()       { return Data.Visible || ( Data.GeckVisible && GeckCount > 0 ); }
-    uint       GetId()           { return Data.LocId; }
+    uint       GetId() const     { return Data.LocId; }
     void       SetId( uint _id ) { Data.LocId = _id; }
-    ushort     GetPid()          { return Data.LocPid; }
+    ushort     GetPid() const    { return Data.LocPid; }
     uint       GetRadius()       { return Data.Radius; }
     MapVec&    GetMapsNoLock()   { return locMaps; };
     void       GetMaps( MapVec& maps, bool lock );
@@ -305,7 +306,7 @@ public:
     bool       GetTransit( Map* from_map, uint& id_map, ushort& hx, ushort& hy, uchar& dir );
     bool       IsAutomaps()                { return !Proto->AutomapsPids.empty(); }
     bool       IsAutomap( ushort map_pid ) { return std::find( Proto->AutomapsPids.begin(), Proto->AutomapsPids.end(), map_pid ) != Proto->AutomapsPids.end(); }
-    UShortVec& GetAutomaps()               { return Proto->AutomapsPids; }
+    UShortVec const& GetAutomaps() const   { return Proto->AutomapsPids; }
     bool       IsCanEnter( uint players_count );
 
     bool IsNoCrit();

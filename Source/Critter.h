@@ -146,7 +146,7 @@ public:
         Data.MapPid = map_pid;
     }
     void SetLexems( const char* lexems );
-    bool IsLexems() { return Data.Lexems[ 0 ] != 0; }
+    bool IsLexems() const { return Data.Lexems[ 0 ] != 0; }
 
     static int  RunParamsSendScript( int bind_id, uint param_index, Critter* from_cr, Critter* to_cr );
     static bool RunSlotDataSendScript( int bind_id, uchar slot, Item* item, Critter* from_cr, Critter* to_cr );
@@ -331,7 +331,7 @@ public:
 
     // Send
     volatile int DisableSend;
-    bool IsSendDisabled() { return DisableSend > 0; }
+    bool IsSendDisabled() const { return DisableSend > 0; }
     void Send_Move( Critter* from_cr, uint move_params );
     void Send_Dir( Critter* from_cr );
     void Send_AddCritter( Critter* cr );
@@ -404,18 +404,18 @@ public:
     void Send_AllQuests();
     void Send_AllAutomapsInfo();
 
-    bool        IsPlayer()    { return !CritterIsNpc; }
-    bool        IsNpc()       { return CritterIsNpc; }
-    uint        GetId()       { return Data.Id; }
-    uint        GetMap()      { return Data.MapId; }
-    ushort      GetProtoMap() { return Data.MapPid; }
+    bool        IsPlayer()    const { return !CritterIsNpc; }
+    bool        IsNpc()       const { return CritterIsNpc; }
+    uint        GetId()       const { return Data.Id; }
+    uint        GetMap()      const { return Data.MapId; }
+    ushort      GetProtoMap() const { return Data.MapPid; }
     void        RefreshName();
-    const char* GetName() { return NameStr.c_str(); }
-    const char* GetInfo();
-    uint        GetCrType() { return Data.BaseType; }
-    ushort      GetHexX()   { return Data.HexX; }
-    ushort      GetHexY()   { return Data.HexY; }
-    uchar       GetDir()    { return Data.Dir; }
+    const char* GetName()  const { return NameStr.c_str(); }
+    const char* GetInfo() const;
+    uint        GetCrType() const { return Data.BaseType; }
+    ushort      GetHexX() const { return Data.HexX; }
+    ushort      GetHexY() const { return Data.HexY; }
+    uchar       GetDir() const  { return Data.Dir; }
     bool        IsCanWalk();
     bool        IsCanRun();
     uint        GetTimeWalk();
@@ -634,8 +634,8 @@ public:
     ushort      GetPort();
 
 public:
-    bool IsOnline()  { return !IsDisconnected; }
-    bool IsOffline() { return IsDisconnected; }
+    bool IsOnline() const { return !IsDisconnected; }
+    bool IsOffline() const { return IsDisconnected; }
     void Disconnect()
     {
         IsDisconnected = true;
@@ -722,8 +722,8 @@ public:
     void Send_SomeItem( Item* item );       // Without checks!
 
     // Locations
-    bool CheckKnownLocById( uint loc_id );
-    bool CheckKnownLocByPid( ushort loc_pid );
+    bool CheckKnownLocById( uint loc_id ) const;
+    bool CheckKnownLocByPid( ushort loc_pid ) const;
     void AddKnownLoc( uint loc_id );
     void EraseKnownLoc( uint loc_id );
 
@@ -758,7 +758,7 @@ private:
 
 public:
     Talking Talk;
-    bool IsTalking() { return Talk.TalkType != TALK_NONE; }
+    bool IsTalking() const { return Talk.TalkType != TALK_NONE; }
     void ProcessTalk( bool force );
     void CloseTalk();
 

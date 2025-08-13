@@ -291,7 +291,7 @@ public:
     #endif
 
     bool        IsInit()  { return isInit; }
-    ushort      GetPid()  { return isInit ? pmapPid : 0; }
+    ushort      GetPid()  const { return isInit ? pmapPid : 0; }
     const char* GetName() { return pmapName.c_str(); }
 
     long RefCounter;

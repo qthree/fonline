@@ -307,7 +307,7 @@ void Item::SetSortValue( ItemPtrVec& items )
 bool SortItemsFunc( const Item& l, const Item& r ) { return l.Data.SortValue < r.Data.SortValue; }
 void Item::SortItems( ItemVec& items )             { std::sort( items.begin(), items.end(), SortItemsFunc ); }
 
-uint Item::GetCount()
+uint Item::GetCount() const
 {
     return IsStackable() ? Data.Count : 1;
 }
@@ -421,7 +421,7 @@ void Item::SetMode( uchar mode )
     Data.Mode = mode;
 }
 
-uint Item::GetCost1st()
+uint Item::GetCost1st() const
 {
     uint cost = ( Data.Cost ? Data.Cost : Proto->Cost );
     // if(IsDeteriorable()) cost-=cost*GetWearProc()/100;

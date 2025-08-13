@@ -3123,7 +3123,7 @@ void Critter::RefreshName()
     }
 }
 
-const char* Critter::GetInfo()
+const char* Critter::GetInfo() const
 {
 //	static char buf[1024];
 //	sprintf(buf,"Name<%s>, Id<%u>, MapPid<%u>, HexX<%u>, HexY<%u>",GetName(),GetId(),GetProtoMap(),GetHexX(),GetHexY());
@@ -4690,7 +4690,7 @@ void Client::Send_AutomapsInfo( void* locs_vec, Location* loc )
         for( uint i = 0, j = (uint) locs->size(); i < j; i++ )
         {
             Location*  loc_ = ( *locs )[ i ];
-            UShortVec& automaps = loc_->GetAutomaps();
+            const UShortVec& automaps = loc_->GetAutomaps();
             Bout << loc_->GetId();
             Bout << loc_->GetPid();
             Bout << (ushort) automaps.size();
@@ -4702,7 +4702,7 @@ void Client::Send_AutomapsInfo( void* locs_vec, Location* loc )
 
     if( loc )
     {
-        UShortVec& automaps = loc->GetAutomaps();
+        const UShortVec& automaps = loc->GetAutomaps();
         uint       msg_len = sizeof( uint ) + sizeof( msg_len ) + sizeof( bool ) + sizeof( ushort ) +
                              sizeof( uint ) + sizeof( ushort ) + sizeof( ushort ) + sizeof( ushort ) * (uint) automaps.size();
 
@@ -4989,11 +4989,11 @@ void Client::Send_SomeItem( Item* item )
 /* Locations                                                            */
 /************************************************************************/
 
-bool Client::CheckKnownLocById( uint loc_id )
+bool Client::CheckKnownLocById( uint loc_id ) const
 {
     if( !loc_id )
         return false;
-    CritDataExt* data_ext = GetDataExt();
+    CritDataExt* data_ext = DataExt;
     if( !data_ext )
         return false;
 
@@ -5003,11 +5003,11 @@ bool Client::CheckKnownLocById( uint loc_id )
     return false;
 }
 
-bool Client::CheckKnownLocByPid( ushort loc_pid )
+bool Client::CheckKnownLocByPid( ushort loc_pid ) const
 {
     if( !loc_pid )
         return false;
-    CritDataExt* data_ext = GetDataExt();
+    CritDataExt* data_ext = DataExt;
     if( !data_ext )
         return false;
 

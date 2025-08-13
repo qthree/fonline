@@ -235,7 +235,7 @@ void FOMsg::CalculateHash()
     }
 }
 
-uint FOMsg::GetHash()
+uint FOMsg::GetHash() const
 {
     return strDataHash;
 }
@@ -246,12 +246,12 @@ UIntStrMulMap& FOMsg::GetData()
 }
 
 #ifdef FONLINE_SERVER
-const char* FOMsg::GetToSend()
+const char* FOMsg::GetToSend() const
 {
     return &toSend[ 0 ];
 }
 
-uint FOMsg::GetToSendLen()
+uint FOMsg::GetToSendLen() const
 {
     return (uint) toSend.size();
 }

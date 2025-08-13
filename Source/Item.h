@@ -455,54 +455,54 @@ public:
     static void SortItems( ItemVec& items );
 
     // All
-    uint   GetId()            { return Id; }
-    ushort GetProtoId()       { return Proto->ProtoId; }
-    uint   GetInfo()          { return Proto->ProtoId * 100 + Data.Info; }
-    uint   GetPicMap()        { return Data.PicMapHash ? Data.PicMapHash : Proto->PicMap; }
-    uint   GetPicInv()        { return Data.PicInvHash ? Data.PicInvHash : Proto->PicInv; }
-    bool   IsValidAccessory() { return Accessory == ITEM_ACCESSORY_CRITTER || Accessory == ITEM_ACCESSORY_HEX || Accessory == ITEM_ACCESSORY_CONTAINER; }
+    uint   GetId()            const { return Id; }
+    ushort GetProtoId()       const { return Proto->ProtoId; }
+    uint   GetInfo()          const { return Proto->ProtoId * 100 + Data.Info; }
+    uint   GetPicMap()        const { return Data.PicMapHash ? Data.PicMapHash : Proto->PicMap; }
+    uint   GetPicInv()        const { return Data.PicInvHash ? Data.PicInvHash : Proto->PicInv; }
+    bool   IsValidAccessory() const { return Accessory == ITEM_ACCESSORY_CRITTER || Accessory == ITEM_ACCESSORY_HEX || Accessory == ITEM_ACCESSORY_CONTAINER; }
 
-    uint GetCount();
+    uint GetCount() const;
     void Count_Set( uint val );
     void Count_Add( uint val );
     void Count_Sub( uint val );
 
-    int    GetType() { return Proto->Type; }
+    int    GetType() const { return Proto->Type; }
     void   SetMode( uchar mode );
-    ushort GetSortValue() { return Data.SortValue; }
+    ushort GetSortValue() const { return Data.SortValue; }
 
-    bool IsStackable() { return Proto->Stackable; }
-    bool IsBlocks()    { return Proto->IsBlocks(); }
+    bool IsStackable() const { return Proto->Stackable; }
+    bool IsBlocks()    const { return Proto->IsBlocks(); }
 
-    bool IsPassed()           { return FLAG( Data.Flags, ITEM_NO_BLOCK ) && FLAG( Data.Flags, ITEM_SHOOT_THRU ); }
-    bool IsRaked()            { return FLAG( Data.Flags, ITEM_SHOOT_THRU ); }
-    bool IsFlat()             { return FLAG( Data.Flags, ITEM_FLAT ); }
-    bool IsHidden()           { return FLAG( Data.Flags, ITEM_HIDDEN ); }
-    bool IsCanPickUp()        { return FLAG( Data.Flags, ITEM_CAN_PICKUP ); }
-    bool IsCanTalk()          { return FLAG( Data.Flags, ITEM_CAN_TALK ); }
-    bool IsCanUse()           { return FLAG( Data.Flags, ITEM_CAN_USE ); }
-    bool IsCanUseOnSmth()     { return FLAG( Data.Flags, ITEM_CAN_USE_ON_SMTH ); }
-    bool IsHasTimer()         { return FLAG( Data.Flags, ITEM_HAS_TIMER ); }
-    bool IsBadItem()          { return FLAG( Data.Flags, ITEM_BAD_ITEM ); }
-    bool IsTwoHands()         { return FLAG( Data.Flags, ITEM_TWO_HANDS ); }
-    bool IsBigGun()           { return FLAG( Data.Flags, ITEM_BIG_GUN ); }
-    bool IsNoHighlight()      { return FLAG( Data.Flags, ITEM_NO_HIGHLIGHT ); }
-    bool IsShowAnim()         { return FLAG( Data.Flags, ITEM_SHOW_ANIM ); }
-    bool IsShowAnimExt()      { return FLAG( Data.Flags, ITEM_SHOW_ANIM_EXT ); }
-    bool IsLightThru()        { return FLAG( Data.Flags, ITEM_LIGHT_THRU ); }
-    bool IsAlwaysView()       { return FLAG( Data.Flags, ITEM_ALWAYS_VIEW ); }
-    bool IsGeck()             { return FLAG( Data.Flags, ITEM_GECK ); }
-    bool IsNoLightInfluence() { return FLAG( Data.Flags, ITEM_NO_LIGHT_INFLUENCE ); }
-    bool IsNoLoot()           { return FLAG( Data.Flags, ITEM_NO_LOOT ); }
-    bool IsNoSteal()          { return FLAG( Data.Flags, ITEM_NO_STEAL ); }
-    bool IsGag()              { return FLAG( Data.Flags, ITEM_GAG ); }
+    bool IsPassed()           const { return FLAG( Data.Flags, ITEM_NO_BLOCK ) && FLAG( Data.Flags, ITEM_SHOOT_THRU ); }
+    bool IsRaked()            const { return FLAG( Data.Flags, ITEM_SHOOT_THRU ); }
+    bool IsFlat()             const { return FLAG( Data.Flags, ITEM_FLAT ); }
+    bool IsHidden()           const { return FLAG( Data.Flags, ITEM_HIDDEN ); }
+    bool IsCanPickUp()        const { return FLAG( Data.Flags, ITEM_CAN_PICKUP ); }
+    bool IsCanTalk()          const { return FLAG( Data.Flags, ITEM_CAN_TALK ); }
+    bool IsCanUse()           const { return FLAG( Data.Flags, ITEM_CAN_USE ); }
+    bool IsCanUseOnSmth()     const { return FLAG( Data.Flags, ITEM_CAN_USE_ON_SMTH ); }
+    bool IsHasTimer()         const { return FLAG( Data.Flags, ITEM_HAS_TIMER ); }
+    bool IsBadItem()          const { return FLAG( Data.Flags, ITEM_BAD_ITEM ); }
+    bool IsTwoHands()         const { return FLAG( Data.Flags, ITEM_TWO_HANDS ); }
+    bool IsBigGun()           const { return FLAG( Data.Flags, ITEM_BIG_GUN ); }
+    bool IsNoHighlight()      const { return FLAG( Data.Flags, ITEM_NO_HIGHLIGHT ); }
+    bool IsShowAnim()         const { return FLAG( Data.Flags, ITEM_SHOW_ANIM ); }
+    bool IsShowAnimExt()      const { return FLAG( Data.Flags, ITEM_SHOW_ANIM_EXT ); }
+    bool IsLightThru()        const { return FLAG( Data.Flags, ITEM_LIGHT_THRU ); }
+    bool IsAlwaysView()       const { return FLAG( Data.Flags, ITEM_ALWAYS_VIEW ); }
+    bool IsGeck()             const { return FLAG( Data.Flags, ITEM_GECK ); }
+    bool IsNoLightInfluence() const { return FLAG( Data.Flags, ITEM_NO_LIGHT_INFLUENCE ); }
+    bool IsNoLoot()           const { return FLAG( Data.Flags, ITEM_NO_LOOT ); }
+    bool IsNoSteal()          const { return FLAG( Data.Flags, ITEM_NO_STEAL ); }
+    bool IsGag()              const { return FLAG( Data.Flags, ITEM_GAG ); }
 
-    uint GetVolume()    { return GetCount() * Proto->Volume; }
-    uint GetVolume1st() { return Proto->Volume; }
-    uint GetWeight()    { return GetCount() * Proto->Weight; }
-    uint GetWeight1st() { return Proto->Weight; }
-    uint GetCost()      { return GetCount() * GetCost1st(); }
-    uint GetCost1st();
+    uint GetVolume()    const { return GetCount() * Proto->Volume; }
+    uint GetVolume1st() const { return Proto->Volume; }
+    uint GetWeight()    const { return GetCount() * Proto->Weight; }
+    uint GetWeight1st() const { return Proto->Weight; }
+    uint GetCost()      const { return GetCount() * GetCost1st(); }
+    uint GetCost1st()   const;
     // uint GetCost1st(){return Data.Cost?Data.Cost:Proto->Cost;}
 
     #if defined ( FONLINE_CLIENT ) || defined ( FONLINE_MAPPER )
@@ -518,34 +518,34 @@ public:
     void Repair();
     #endif
 
-    bool IsDeteriorable() { return Proto->Deteriorable; }
-    bool IsBroken()       { return FLAG( Data.BrokenFlags, BI_BROKEN ); }
-    int  GetDeteriorationProc()
+    bool IsDeteriorable() const { return Proto->Deteriorable; }
+    bool IsBroken()       const { return FLAG( Data.BrokenFlags, BI_BROKEN ); }
+    int  GetDeteriorationProc() const
     {
         int val = Data.Deterioration * 100 / MAX_DETERIORATION;
         return CLAMP( val, 0, 100 );
     }
 
     // Armor
-    bool IsArmor() { return GetType() == ITEM_TYPE_ARMOR; }
+    bool IsArmor() const { return GetType() == ITEM_TYPE_ARMOR; }
 
     // Weapon
-    bool IsWeapon()                  { return GetType() == ITEM_TYPE_WEAPON; }
-    bool WeapIsEmpty()               { return !Data.AmmoCount; }
-    bool WeapIsFull()                { return Data.AmmoCount >= Proto->Weapon_MaxAmmoCount; }
-    uint WeapGetAmmoCount()          { return Data.AmmoCount; }
-    uint WeapGetAmmoPid()            { return Data.AmmoPid; }
-    uint WeapGetMaxAmmoCount()       { return Proto->Weapon_MaxAmmoCount; }
-    int  WeapGetAmmoCaliber()        { return Proto->Weapon_Caliber; }
-    bool WeapIsUseAviable( int use ) { return use >= USE_PRIMARY && use <= USE_THIRD ? ( ( ( Proto->Weapon_ActiveUses >> use ) & 1 ) != 0 ) : false; }
-    bool WeapIsCanAim( int use )     { return use >= 0 && use < MAX_USES && Proto->Weapon_Aim[ use ]; }
+    bool IsWeapon()                  const { return GetType() == ITEM_TYPE_WEAPON; }
+    bool WeapIsEmpty()               const { return !Data.AmmoCount; }
+    bool WeapIsFull()                const { return Data.AmmoCount >= Proto->Weapon_MaxAmmoCount; }
+    uint WeapGetAmmoCount()          const { return Data.AmmoCount; }
+    uint WeapGetAmmoPid()            const { return Data.AmmoPid; }
+    uint WeapGetMaxAmmoCount()       const { return Proto->Weapon_MaxAmmoCount; }
+    int  WeapGetAmmoCaliber()        const { return Proto->Weapon_Caliber; }
+    bool WeapIsUseAviable( int use ) const { return use >= USE_PRIMARY && use <= USE_THIRD ? ( ( ( Proto->Weapon_ActiveUses >> use ) & 1 ) != 0 ) : false; }
+    bool WeapIsCanAim( int use )     const { return use >= 0 && use < MAX_USES && Proto->Weapon_Aim[ use ]; }
     void WeapLoadHolder();
 
     // Container
-    bool IsContainer()          { return Proto->IsContainer(); }
-    bool ContIsCannotPickUp()   { return Proto->Container_CannotPickUp; }
-    bool ContIsMagicHandsGrnd() { return Proto->Container_MagicHandsGrnd; }
-    bool ContIsChangeble()      { return Proto->Container_Changeble; }
+    bool IsContainer()          const { return Proto->IsContainer(); }
+    bool ContIsCannotPickUp()   const { return Proto->Container_CannotPickUp; }
+    bool ContIsMagicHandsGrnd() const { return Proto->Container_MagicHandsGrnd; }
+    bool ContIsChangeble()      const { return Proto->Container_Changeble; }
     #ifdef FONLINE_SERVER
     void  ContAddItem( Item*& item, uint stack_id );
     void  ContSetItem( Item* item );
@@ -559,38 +559,38 @@ public:
     #endif
 
     // Door
-    bool IsDoor() { return GetType() == ITEM_TYPE_DOOR; }
+    bool IsDoor() const { return GetType() == ITEM_TYPE_DOOR; }
 
     // Locker
-    bool IsHasLocker()       { return IsDoor() || IsContainer(); }
-    uint LockerDoorId()      { return Data.LockerId; }
-    bool LockerIsOpen()      { return FLAG( Data.LockerCondition, LOCKER_ISOPEN ); }
-    bool LockerIsClose()     { return !LockerIsOpen(); }
-    bool LockerIsChangeble() { return Proto->LockerIsChangeble(); }
-    int  LockerComplexity()  { return Data.LockerComplexity; }
+    bool IsHasLocker()       const { return IsDoor() || IsContainer(); }
+    uint LockerDoorId()      const { return Data.LockerId; }
+    bool LockerIsOpen()      const { return FLAG( Data.LockerCondition, LOCKER_ISOPEN ); }
+    bool LockerIsClose()     const { return !LockerIsOpen(); }
+    bool LockerIsChangeble() const { return Proto->LockerIsChangeble(); }
+    int  LockerComplexity()  const { return Data.LockerComplexity; }
 
     // Ammo
-    bool IsAmmo()         { return Proto->IsAmmo(); }
-    int  AmmoGetCaliber() { return Proto->Ammo_Caliber; }
+    bool IsAmmo()         const { return Proto->IsAmmo(); }
+    int  AmmoGetCaliber() const { return Proto->Ammo_Caliber; }
 
     // Key
-    bool IsKey()     { return Proto->IsKey(); }
-    uint KeyDoorId() { return Data.LockerId; }
+    bool IsKey()     const { return Proto->IsKey(); }
+    uint KeyDoorId() const { return Data.LockerId; }
 
     // Drug
-    bool IsDrug() { return Proto->IsDrug(); }
+    bool IsDrug() const { return Proto->IsDrug(); }
 
     // Misc
-    bool IsMisc() { return Proto->IsMisc(); }
+    bool IsMisc() const { return Proto->IsMisc(); }
 
     // Colorize
-    bool  IsColorize()  { return FLAG( Data.Flags, ITEM_COLORIZE ); }
-    uint  GetColor()    { return ( Data.LightColor ? Data.LightColor : Proto->LightColor ) & 0xFFFFFF; }
-    uchar GetAlpha()    { return ( Data.LightColor ? Data.LightColor : Proto->LightColor ) >> 24; }
-    uint  GetInvColor() { return FLAG( Data.Flags, ITEM_COLORIZE_INV ) ? ( Data.LightColor ? Data.LightColor : Proto->LightColor ) : 0; }
+    bool  IsColorize()  const { return FLAG( Data.Flags, ITEM_COLORIZE ); }
+    uint  GetColor()    const { return ( Data.LightColor ? Data.LightColor : Proto->LightColor ) & 0xFFFFFF; }
+    uchar GetAlpha()    const { return ( Data.LightColor ? Data.LightColor : Proto->LightColor ) >> 24; }
+    uint  GetInvColor() const { return FLAG( Data.Flags, ITEM_COLORIZE_INV ) ? ( Data.LightColor ? Data.LightColor : Proto->LightColor ) : 0; }
 
     // Light
-    bool IsLight() { return FLAG( Data.Flags, ITEM_LIGHT ); }
+    bool IsLight() const { return FLAG( Data.Flags, ITEM_LIGHT ); }
     uint LightGetHash()
     {
         if( !IsLight() ) return 0;
@@ -602,32 +602,32 @@ public:
         return (uint) ((ptr >> 32) ^ (ptr&0xFFFFFFFF));
         #endif
     }
-    int  LightGetIntensity() { return Data.LightIntensity ? Data.LightIntensity : Proto->LightIntensity; }
-    int  LightGetDistance()  { return Data.LightDistance ? Data.LightDistance : Proto->LightDistance; }
-    int  LightGetFlags()     { return Data.LightFlags ? Data.LightFlags : Proto->LightFlags; }
-    uint LightGetColor()     { return ( Data.LightColor ? Data.LightColor : Proto->LightColor ) & 0xFFFFFF; }
+    int  LightGetIntensity() const { return Data.LightIntensity ? Data.LightIntensity : Proto->LightIntensity; }
+    int  LightGetDistance()  const { return Data.LightDistance ? Data.LightDistance : Proto->LightDistance; }
+    int  LightGetFlags()     const { return Data.LightFlags ? Data.LightFlags : Proto->LightFlags; }
+    uint LightGetColor()     const { return ( Data.LightColor ? Data.LightColor : Proto->LightColor ) & 0xFFFFFF; }
 
     // Radio
-    bool IsRadio()           { return FLAG( Data.Flags, ITEM_RADIO ); }
-    bool RadioIsSendActive() { return !FLAG( Data.RadioFlags, RADIO_DISABLE_SEND ); }
-    bool RadioIsRecvActive() { return !FLAG( Data.RadioFlags, RADIO_DISABLE_RECV ); }
+    bool IsRadio()           const { return FLAG( Data.Flags, ITEM_RADIO ); }
+    bool RadioIsSendActive() const { return !FLAG( Data.RadioFlags, RADIO_DISABLE_SEND ); }
+    bool RadioIsRecvActive() const { return !FLAG( Data.RadioFlags, RADIO_DISABLE_RECV ); }
 
     // Car
-    bool IsCar() { return Proto->IsCar(); }
+    bool IsCar() const { return Proto->IsCar(); }
 
     #ifdef FONLINE_SERVER
     Item* GetChild( uint child_index );
     #endif
 
     // Holodisk
-    bool IsHolodisk()               { return FLAG( Data.Flags, ITEM_HOLODISK ); }
-    uint HolodiskGetNum()           { return Data.HolodiskNumber; }
+    bool IsHolodisk()         const { return FLAG( Data.Flags, ITEM_HOLODISK ); }
+    uint HolodiskGetNum()     const { return Data.HolodiskNumber; }
     void HolodiskSetNum( uint num ) { Data.HolodiskNumber = num; }
 
     // Trap
-    bool IsTrap()                { return FLAG( Data.Flags, ITEM_TRAP ); }
+    bool IsTrap()          const { return FLAG( Data.Flags, ITEM_TRAP ); }
     void TrapSetValue( int val ) { Data.TrapValue = val; }
-    int  TrapGetValue()          { return Data.TrapValue; }
+    int  TrapGetValue()    const { return Data.TrapValue; }
 
     bool operator==( const uint& id ) { return ( Id == id ); }
 

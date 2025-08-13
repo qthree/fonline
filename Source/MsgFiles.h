@@ -45,12 +45,12 @@ public:
     void           EraseStr( uint num );          // Delete string
     uint           GetSize();                     // Gets Size of All Strings, without only FOMSG_ERRNUM
     void           CalculateHash();               // Calculate toSend data and hash
-    uint           GetHash();                     // Gets Hash code of MSG in toSend
+    uint           GetHash() const;               // Gets Hash code of MSG in toSend
     UIntStrMulMap& GetData();                     // Gets strData
 
     #ifdef FONLINE_SERVER
-    const char* GetToSend();                      // Gets toSend data
-    uint        GetToSendLen();                   // Gets toSend Length
+    const char* GetToSend() const;                // Gets toSend data
+    uint        GetToSendLen() const;             // Gets toSend Length
     #endif
 
     #ifdef FONLINE_CLIENT
