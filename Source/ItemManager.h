@@ -9,6 +9,9 @@ class Critter;
 class Map;
 #endif
 
+class ItemManager;
+extern ItemManager ItemMngr;
+
 class ItemManager
 {
 private:
@@ -112,8 +115,12 @@ public:
     string GetItemsStatistics();
 
     ItemManager(): isActive( false ) { MEMORY_PROCESS( MEMORY_STATIC, sizeof( ItemManager ) ); };
-};
 
-extern ItemManager ItemMngr;
+    #ifdef CORROSION
+    static inline ItemManager* Singleton() {
+        return &ItemMngr;
+    }
+    #endif // CORROSION
+};
 
 #endif // __ITEM_MANAGER__

@@ -8,6 +8,8 @@
 # include "Critter.h"
 #endif
 
+class CritterManager;
+extern CritterManager CrMngr;
 
 class CritterManager
 {
@@ -70,8 +72,12 @@ public:
     #ifdef FONLINE_MAPPER
     string ProtosCollectionName[ MAX_CRIT_PROTOS ];
     #endif
-};
 
-extern CritterManager CrMngr;
+    #ifdef CORROSION
+    static inline CritterManager* Singleton() {
+        return &CrMngr;
+    }
+    #endif // CORROSION
+};
 
 #endif // __CRITTER_MANAGER__

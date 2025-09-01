@@ -119,6 +119,9 @@ struct PathStep
 };
 typedef vector< PathStep > PathStepVec;
 
+class MapManager;
+extern MapManager MapMngr;
+
 class MapManager
 {
 private:
@@ -208,8 +211,12 @@ public:
     int          FindPathGrid( ushort& hx, ushort& hy, int index, bool smooth_switcher );
     PathStepVec& GetPath( uint num ) { return pathesPool[ num ]; }
     void         PathSetMoveParams( PathStepVec& path, bool is_run );
-};
 
-extern MapManager MapMngr;
+#ifdef CORROSION
+    static inline MapManager* Singleton() {
+        return &MapMngr;
+    }
+#endif // CORROSION
+};
 
 #endif // __MAP_MANAGER__

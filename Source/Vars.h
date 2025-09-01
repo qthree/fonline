@@ -135,6 +135,9 @@ bool GameVarEqualGameVar( const GameVar& var, const GameVar& _right );
 int  GameVarCmpGameVar( const GameVar& var, const GameVar& _right );
 #endif // FONLINE_SERVER
 
+class VarManager;
+extern VarManager VarMngr;
+
 class VarManager
 {
 private:
@@ -160,6 +163,12 @@ public:
     bool         IsTemplateVarAviable( const char* var_name );
     void         SaveTemplateVars();
     TempVarVec&  GetTemplateVars() { return tempVars; }
+
+    #ifdef CORROSION
+    static inline VarManager* Singleton() {
+        return &VarMngr;
+    }
+    #endif // CORROSION
 
     #ifdef FONLINE_SERVER
 public:
@@ -187,7 +196,5 @@ private:
     GameVar* CreateVarUnicum( uint64 id, uint master_id, uint slave_id, TemplateVar* tvar );
     #endif // FONLINE_SERVER
 };
-
-extern VarManager VarMngr;
 
 #endif // __VARS__
