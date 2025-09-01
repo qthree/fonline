@@ -1,0 +1,4 @@
+[package]
+name = "fonline_engine_sources"
+version = "0.1.0"
+edition = "2024"
