@@ -20,40 +20,33 @@ ServerScriptFunctions* Server_ServerFunctions() {
 }
 
 #ifdef SERVER_LIB
-#include "Version.h" 
+#include "Version.h"
+#include "ServerConfig.h"
 #include <sys/stat.h>
 FOServer Server;
-int Global_StartServerLib( int argc, const void* argv )
+
+extern "C" void server_lib_log( char* str );
+
+static volatile uchar exit_code = 0;
+
+uchar Global_StartServerLib( ServerConfig cfg )
 {
     // Stuff
-    setlocale( LC_ALL, "Russian" );
-    SetCommandLine( argc, argv );
-    RestoreMainDirectory();
-    CatchExceptions( "FOnlineServer", SERVER_VERSION );
     Timer::Init();
-    Thread::SetCurrentName( "Daemon" );
-    LogToFile( "./FOnlineServerDaemon.log" );
-
-    // Config
-    IniParser cfg;
-    cfg.LoadFile( GetConfigFileName(), PT_SERVER_ROOT );
+    Thread::SetCurrentName( "ServerLib" );
+    LogToFunc(server_lib_log);
 
     // Logging
-    LogWithTime( cfg.GetInt( "LoggingTime", 1 ) == 0 ? false : true );
-    LogWithThread( cfg.GetInt( "LoggingThread", 1 ) == 0 ? false : true );
-    if( strstr( CommandLine, "-logdebugoutput" ) || cfg.GetInt( "LoggingDebugOutput", 0 ) != 0 )
+    LogWithTime( cfg.LoggingTime );
+    LogWithThread( cfg.LoggingThread );
+    if( cfg.LoggingDebugOutput ) {
         LogToDebugOutput();
+    }
 
     // Log version
-    WriteLog( "FOnline server daemon, version %04X-%02X.\n", SERVER_VERSION, FO_PROTOCOL_VERSION & 0xFF );
-    if( CommandLineArgCount > 1 )
-        WriteLog( "Command line<%s>.\n", CommandLine );
+    WriteLog( "FOnline server library, version %04X-%02X.\n", SERVER_VERSION, FO_PROTOCOL_VERSION & 0xFF );
 
-    umask( 0 );
-
-    GetServerOptions();
-
-    if( Server.Init() )
+    if( Server.Init(cfg) )
     {
         FOQuit = false;
         Server.MainLoop();
@@ -63,6 +56,11 @@ int Global_StartServerLib( int argc, const void* argv )
     {
         WriteLog( "Initialization fail!\n" );
     }
-    return 0;
+    return exit_code;
+}
+
+void Global_StopServerLib( uchar code ) {
+    exit_code = code;
+    FOQuit = true;
 }
 #endif // SERVER_LIB

@@ -675,9 +675,7 @@ void CheckTextBoxSize( bool force )
 
 void GameLoopThread( void* )
 {
-    GetServerOptions();
-
-    if( Server.Init() )
+    if( Server.Init(ServerConfig::LoadConfigFile()) )
     {
         if( GuiWindow )
         {
@@ -966,9 +964,7 @@ void DaemonLoop()
 
 void GameLoopThread( void* )
 {
-    GetServerOptions();
-
-    if( Server.Init() )
+    if( Server.Init(ServerConfig::LoadConfigFile()) )
     {
         FOQuit = false;
         Server.MainLoop();
