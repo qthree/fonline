@@ -1574,9 +1574,11 @@ void ProtoMap::SaveCache( FileManager& fm )
 
     // To send
     fm.SetBEUInt( (uint) WallsToSend.size() );
-    fm.SetData( &WallsToSend[ 0 ], (uint) WallsToSend.size() * sizeof( SceneryCl ) );
+    if( WallsToSend.size() )
+        fm.SetData( &WallsToSend[ 0 ], (uint) WallsToSend.size() * sizeof( SceneryCl ) );
     fm.SetBEUInt( (uint) SceneriesToSend.size() );
-    fm.SetData( &SceneriesToSend[ 0 ], (uint) SceneriesToSend.size() * sizeof( SceneryCl ) );
+    if( SceneriesToSend.size() )
+        fm.SetData( &SceneriesToSend[ 0 ], (uint) SceneriesToSend.size() * sizeof( SceneryCl ) );
 
     // Hashes
     fm.SetBEUInt( HashTiles );
@@ -1588,7 +1590,8 @@ void ProtoMap::SaveCache( FileManager& fm )
 
     // Entires
     fm.SetBEUInt( (uint) mapEntires.size() );
-    fm.SetData( &mapEntires[ 0 ], (uint) mapEntires.size() * sizeof( MapEntire ) );
+    if( mapEntires.size() )
+        fm.SetData( &mapEntires[ 0 ], (uint) mapEntires.size() * sizeof( MapEntire ) );
 
     // Save
     char fname[ MAX_FOPATH ];
