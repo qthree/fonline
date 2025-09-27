@@ -3394,6 +3394,9 @@ bool FOServer::InitReal()
     STATIC_ASSERT( sizeof( GameVar ) == 28 );
     STATIC_ASSERT( sizeof( Mutex ) == 24 );
     STATIC_ASSERT( sizeof( MutexSpinlock ) == 4 );
+    
+    STATIC_ASSERT( sizeof( SOCKET ) == 4 );
+    STATIC_ASSERT( sizeof( sockaddr_in ) == 16 );
     STATIC_ASSERT( sizeof( GameOptions ) == 1312 );
     STATIC_ASSERT( sizeof( ScriptArray ) == 36 );
     STATIC_ASSERT( sizeof( ProtoMap::Tile ) == 12 );
@@ -3402,6 +3405,7 @@ bool FOServer::InitReal()
     STATIC_ASSERT( OFFSETOF( Critter::CrTimeEvent, Identifier ) == 12 );
     STATIC_ASSERT( OFFSETOF( Critter, RefCounter ) == 9340 );
     STATIC_ASSERT( OFFSETOF( Client, LanguageMsg ) == 9408 );
+    STATIC_ASSERT( OFFSETOF( Client, GameState ) == 9968 );
     STATIC_ASSERT( OFFSETOF( Npc, Reserved ) == 9360 );
     STATIC_ASSERT( OFFSETOF( GameVar, RefCount ) == 22 );
     STATIC_ASSERT( OFFSETOF( TemplateVar, Flags ) == 68 );
@@ -3412,9 +3416,13 @@ bool FOServer::InitReal()
     STATIC_ASSERT( OFFSETOF( ProtoMap, HexFlags ) == 304 );
     STATIC_ASSERT( OFFSETOF( Map, RefCounter ) == 774 );
     STATIC_ASSERT( OFFSETOF( ProtoLocation, GeckVisible ) == 76 );
-    STATIC_ASSERT( OFFSETOF( Location, RefCounter ) == 282 );
+    STATIC_ASSERT( OFFSETOF( Location, RefCounter ) == 282 );  
     #else // FO_X64
     STATIC_ASSERT( sizeof( size_t ) == 8 );
+    STATIC_ASSERT( sizeof( Mutex )  == 40 );
+    STATIC_ASSERT( offsetof( Map, Proto )  == 688 );
+    //int array[offsetof( Map, hexFlags )];
+    //int error = 1 / &array;
     #endif
 
     // Critters parameters

@@ -595,7 +595,12 @@ public:
     {
         if( !IsLight() ) return 0;
         if( Data.LightIntensity ) return Crypt.Crc32( (uchar*) &Data.LightIntensity, 7 ) + FLAG( Data.Flags, ITEM_LIGHT );
+        #ifdef FO_X86
         return (uint) Proto;
+        #else // FO_X64
+        size_t ptr = (size_t) Proto;
+        return (uint) ((ptr >> 32) ^ (ptr&0xFFFFFFFF));
+        #endif
     }
     int  LightGetIntensity() { return Data.LightIntensity ? Data.LightIntensity : Proto->LightIntensity; }
     int  LightGetDistance()  { return Data.LightDistance ? Data.LightDistance : Proto->LightDistance; }

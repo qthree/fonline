@@ -21,8 +21,10 @@ typedef __int64          int64;
 typedef unsigned char    uchar;
 typedef unsigned short   ushort;
 typedef unsigned int     uint;
+typedef unsigned int     uint32;
 typedef uint64_t         uint64;
 typedef int64_t          int64;
+#define SHA2_TYPES
 #endif
 
 #define PAIR( k, v )    pair< decltype( k ), decltype( v ) >( k, v )
