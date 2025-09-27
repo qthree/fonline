@@ -10,6 +10,7 @@
 #include "Version.h"
 #include <stdarg.h>
 #include "md5.h"
+#include "ServerConfig.h"
 
 #pragma MESSAGE("Add TARGET_HEX.")
 
@@ -632,6 +633,7 @@ bool CheckUserPass( const char* str )
     return true;
 }
 
+#ifndef CORRODED_CONFIG
 /************************************************************************/
 /* Config file                                                          */
 /************************************************************************/
@@ -743,6 +745,7 @@ const char* GetWindowName()
 
     return window_name;
 }
+#endif // CORRODED_CONFIG
 
 /************************************************************************/
 /*                                                                      */
@@ -1412,21 +1415,28 @@ MapperScriptFunctions MapperFunctions;
 /************************************************************************/
 #ifdef FONLINE_SERVER
 
-bool FOQuit = false;
+volatile bool FOQuit = false;
 int  ServerGameSleep = 10;
 int  MemoryDebugLevel = 0;
 uint VarsGarbageTime = 3600000;
 bool WorldSaveManager = true;
 bool LogicMT = false;
 
-void GetServerOptions()
+void SetServerOptions(ServerConfig &cfg)
 {
-    IniParser cfg;
-    cfg.LoadFile( GetConfigFileName(), PT_SERVER_ROOT );
-    ServerGameSleep = cfg.GetInt( "GameSleep", 10 );
-    Script::SetConcurrentExecution( cfg.GetInt( "ScriptConcurrentExecution", 0 ) != 0 );
-    WorldSaveManager = ( cfg.GetInt( "WorldSaveManager", 1 ) == 1 );
+    ServerGameSleep = cfg.GameSleep;
+    Script::SetConcurrentExecution( cfg.ScriptConcurrentExecution );
+    WorldSaveManager = cfg.WorldSaveManager == 1;
 }
+
+#ifndef CORRODED_CONFIG
+ServerConfig ServerConfig::LoadConfigFile() {
+    IniParser ini_parser;
+    ini_parser.LoadFile( GetConfigFileName(), PT_SERVER_ROOT );
+    ServerConfig cfg(ini_parser);
+    return cfg;
+}
+#endif // CORRODED_CONFIG
 
 ServerScriptFunctions ServerFunctions;
 

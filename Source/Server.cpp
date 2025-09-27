@@ -1,5 +1,6 @@
 #include "StdAfx.h"
 #include "Server.h"
+#include "ServerConfig.h"
 
 #ifndef SERVER_LIB
 #include "FL/Fl.H"
@@ -231,6 +232,7 @@ string FOServer::GetIngamePlayersStatistics()
     return result;
 }
 
+#ifndef CORRODED_CONFIG
 // Accesses
 void FOServer::GetAccesses( StrVec& client, StrVec& tester, StrVec& moder, StrVec& admin, StrVec& admin_names )
 {
@@ -256,6 +258,7 @@ void FOServer::GetAccesses( StrVec& client, StrVec& tester, StrVec& moder, StrVe
             Str::ParseLine( buf, ' ', admin_names, Str::ParseLineDummy );
     }
 }
+#endif // CORRODED_CONFIG
 
 void FOServer::DisconnectClient( Client* cl )
 {
@@ -2817,7 +2820,7 @@ void FOServer::Process_Command( BufferManager& buf, void ( * logcb )( const char
         DlgMngr.DlgPacksNames.clear();
         int errors = DlgMngr.LoadDialogs( DIALOGS_LST_NAME );
 
-        InitLangPacks( LangPacks );
+        InitLangPacks( LangPacks, ServerConfig::LoadConfigFile() );
         InitLangPacksDialogs( LangPacks );
         logcb( Str::FormatBuf( "Dialogs reload done, errors<%d>.", errors ) );
 
@@ -2847,7 +2850,7 @@ void FOServer::Process_Command( BufferManager& buf, void ( * logcb )( const char
 
                 if( DlgMngr.AddDialogs( pack ) )
                 {
-                    InitLangPacks( LangPacks );
+                    InitLangPacks( LangPacks, ServerConfig::LoadConfigFile() );
                     InitLangPacksDialogs( LangPacks );
                     logcb( "Load dialog success." );
                 }
@@ -2876,7 +2879,7 @@ void FOServer::Process_Command( BufferManager& buf, void ( * logcb )( const char
         SynchronizeLogicThreads();
 
         LangPackVec lang_packs;
-        if( InitLangPacks( lang_packs ) && InitLangPacksDialogs( lang_packs ) && InitCrafts( lang_packs ) )
+        if( InitLangPacks( lang_packs, ServerConfig::LoadConfigFile() ) && InitLangPacksDialogs( lang_packs ) && InitCrafts( lang_packs ) )
         {
             LangPacks = lang_packs;
             logcb( "Reload texts success." );
@@ -3433,22 +3436,20 @@ void FOServer::InitGameTime()
     GameOpt.GameTimeTick = Timer::GameTick();
 }
 
-bool FOServer::Init()
+bool FOServer::Init(ServerConfig &cfg)
 {
+    SetServerOptions(cfg);
     ActiveOnce = true;
     Active = true;
     ActiveInProcess = true;
-    Active = InitReal();
+    Active = InitReal(cfg);
     ActiveInProcess = false;
     return Active;
 }
 
-bool FOServer::InitReal()
+bool FOServer::InitReal(ServerConfig &cfg)
 {
     FileManager::InitDataFiles( DIR_SLASH_SD );
-
-    IniParser cfg;
-    cfg.LoadFile( GetConfigFileName(), PT_SERVER_ROOT );
 
     WriteLog( "***   Starting initialization   ****\n" );
     /*
@@ -3560,21 +3561,20 @@ bool FOServer::InitReal()
     VarsGarbageLastTick = Timer::FastTick();
 
     // Profiler
-    uint sample_time = cfg.GetInt( "ProfilerSampleInterval", 0 );
-    uint profiler_mode = cfg.GetInt( "ProfilerMode", 0 );
+    uint sample_time = cfg.ProfilerSampleInterval;
+    uint profiler_mode = cfg.ProfilerMode;
     if( !profiler_mode )
         sample_time = 0;
     Script::Profiler::SetData( sample_time, ( ( profiler_mode & 1 ) != 0 ) ? 300000 : 0, ( ( profiler_mode & 2 ) != 0 ) );
 
     #ifndef DISABLE_CALLSTACK
     // DetailedCallStackInfo
-    Script::CallStackInfo::CallStackInfoMode = cfg.GetInt( "DetailedCallStackInfo", 0 );
-    Script::CallStackInfo::CallStackInfoMode = CLAMP( Script::CallStackInfo::CallStackInfoMode, 0, 2 );
+    Script::CallStackInfo::CallStackInfoMode = CLAMP( cfg.DetailedCallStackInfo, 0, 2 );
     #endif
 
     // Threading
-    LogicThreadSetAffinity = cfg.GetInt( "LogicThreadSetAffinity", 0 ) != 0;
-    LogicThreadCount = cfg.GetInt( "LogicThreadCount", 0 );
+    LogicThreadSetAffinity = cfg.LogicThreadSetAffinity;
+    LogicThreadCount = cfg.LogicThreadCount;
     if( sample_time )
         LogicThreadCount = 1;
     else if( !LogicThreadCount )
@@ -3606,7 +3606,7 @@ bool FOServer::InitReal()
     ConstantsManager::Initialize( PT_SERVER_DATA ); // Generate name of defines
     if( !InitScriptSystem() )
         return false;                               // Script system
-    if( !InitLangPacks( LangPacks ) )
+    if( !InitLangPacks( LangPacks, cfg ) )
         return false;                               // Language packs
     if( !ReloadClientScripts() )
         return false;                               // Client scripts, after language packs initialization
@@ -3704,7 +3704,7 @@ bool FOServer::InitReal()
     ushort port;
     if( !Singleplayer )
     {
-        port = cfg.GetInt( "Port", 4000 );
+        port = cfg.Port;
         WriteLog( "Starting server on port<%u>.\n", port );
     }
     else
@@ -3743,7 +3743,7 @@ bool FOServer::InitReal()
         return false;
     }
 
-    NetIOThreadsCount = cfg.GetInt( "NetWorkThread", 0 );
+    NetIOThreadsCount = cfg.NetWorkThread;
     if( !NetIOThreadsCount )
         NetIOThreadsCount = CpuCount;
 
@@ -3829,6 +3829,7 @@ bool FOServer::InitReal()
         return false;
     }
 
+#ifndef SERVER_LIB
     // Process command line definitions
     const char*      cmd_line = CommandLine;
     asIScriptEngine* engine = Script::GetEngine();
@@ -3863,6 +3864,7 @@ bool FOServer::InitReal()
             }
         }
     }
+#endif // SERVER_LIB
 
     ScriptSystemUpdate();
 
@@ -3875,7 +3877,7 @@ bool FOServer::InitReal()
         DumpEndEvent.Allow();
         DumpThread.Start( Dump_Work, "WorldSaveManager" );
     }
-    SaveWorldTime = cfg.GetInt( "WorldSaveTime", 60 ) * 60 * 1000;
+    SaveWorldTime = cfg.WorldSaveTime * 60 * 1000;
     SaveWorldNextTick = Timer::FastTick() + SaveWorldTime;
 
     Active = true;
@@ -3937,30 +3939,16 @@ bool FOServer::InitCrafts( LangPackVec& lang_packs )
     return true;
 }
 
-bool FOServer::InitLangPacks( LangPackVec& lang_packs )
+bool FOServer::InitLangPacks( LangPackVec& lang_packs, ServerConfig& cfg )
 {
     WriteLog( "Loading language packs...\n" );
 
-    IniParser cfg;
-    cfg.LoadFile( GetConfigFileName(), PT_SERVER_ROOT );
-    uint      cur_lang = 0;
-
-    while( true )
+    uchar cur_lang = 0;
+    for( ; cur_lang < cfg.LanguageCount; ++cur_lang )
     {
-        char cur_str_lang[ MAX_FOTEXT ];
-        char lang_name[ MAX_FOTEXT ];
-        Str::Format( cur_str_lang, "Language_%u", cur_lang );
+        const char* lang_name = cfg.GetLanguage(cur_lang);
 
-        if( !cfg.GetStr( cur_str_lang, "", lang_name ) )
-            break;
-
-        if( Str::Length( lang_name ) != 4 )
-        {
-            WriteLog( "Language name not equal to four letters.\n" );
-            return false;
-        }
-
-        uint pack_id = *(uint*) &lang_name;
+        uint pack_id = *(uint*) lang_name;
         if( std::find( lang_packs.begin(), lang_packs.end(), pack_id ) != lang_packs.end() )
         {
             WriteLog( "Language pack<%u> is already initialized.\n", cur_lang );
@@ -3975,7 +3963,6 @@ bool FOServer::InitLangPacks( LangPackVec& lang_packs )
         }
 
         lang_packs.push_back( lang );
-        cur_lang++;
     }
 
     WriteLog( "Loading language packs complete, loaded<%u> packs.\n", cur_lang );

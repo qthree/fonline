@@ -158,12 +158,14 @@ void GetHexInterval( int from_hx, int from_hy, int to_hx, int to_hy, int& x, int
 bool CheckUserName( const char* str );
 bool CheckUserPass( const char* str );
 
+#ifndef CORRODED_CONFIG
 // Config file
 #define CLIENT_CONFIG_APP     "Game Options"
 const char* GetConfigFileName();
 
 // Window name
 const char* GetWindowName();
+#endif // CORRODED_CONFIG
 
 // Shared structure
 struct ScoreType
@@ -505,15 +507,16 @@ struct MapperScriptFunctions
 # include "Script.h"
 # include "ThreadSync.h"
 # include "Jobs.h"
+# include "ServerConfig.h"
 
-extern bool FOQuit;
+extern volatile bool FOQuit;
 extern int  ServerGameSleep;
 extern int  MemoryDebugLevel;
 extern uint VarsGarbageTime;
 extern bool WorldSaveManager;
 extern bool LogicMT;
 
-void GetServerOptions();
+void SetServerOptions(ServerConfig &cfg);
 
 struct ServerScriptFunctions
 {

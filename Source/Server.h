@@ -276,7 +276,7 @@ public:
     // Lang packs
     static LangPackVec LangPacks;     // Todo: synchronize
     static bool InitCrafts( LangPackVec& lang_packs );
-    static bool InitLangPacks( LangPackVec& lang_packs );
+    static bool InitLangPacks( LangPackVec& lang_packs, ServerConfig& cfg );
     static bool InitLangPacksDialogs( LangPackVec& lang_packs );
     static void FinishLangPacks();
     static bool InitLangCrTypes( LangPackVec& lang_packs );
@@ -285,8 +285,8 @@ public:
     #endif // CORROSION
 
     // Init/Finish
-    static bool Init();
-    static bool InitReal();
+    static bool Init(ServerConfig &cfg);
+    static bool InitReal(ServerConfig &cfg);
     static void Finish();
     static bool Starting() { return Active && ActiveInProcess; }
     static bool Started()  { return Active && !ActiveInProcess; }
@@ -377,8 +377,10 @@ public:
     static void AddClientSaveData( Client* cl );
     static void Dump_Work( void* data );
 
+#ifndef CORRODED_CONFIG
     // Access
     static void GetAccesses( StrVec& client, StrVec& tester, StrVec& moder, StrVec& admin, StrVec& admin_names );
+#endif // CORRODED_CONFIG
 
     // Banned
     #define BANS_FNAME_ACTIVE              "active.txt"
