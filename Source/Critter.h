@@ -546,8 +546,8 @@ public:
 
     #ifdef CORROSION
     bool is_valid() const { return !IsNotValid; }
-    CritData const& GetDataRef() const { return Data; }
-    CritData & GetDataMut() { return Data; }
+    CritData const& get_data_ref() const { return Data; }
+    CritData & get_data_mut() { return Data; }
     uint get_flags() const { return Flags; }
     GlobalMapGroup* get_group_move() { return GroupMove; }
     Item*& get_item_slot_main_mut() { return ItemSlotMain; }
