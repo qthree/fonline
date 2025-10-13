@@ -738,6 +738,7 @@ bool ProtoMap::ReadObjects( FileManager& fm, int version )
     return false;
 }
 
+#ifndef CORRODED_MAP
 bool ProtoMap::LoadTextFormat( const char* buf )
 {
 	IniParser map_ini;
@@ -1180,6 +1181,7 @@ bool ProtoMap::LoadTextFormat( const char* buf )
 	
     return true;
 }
+#endif CORRODED_MAP
 
 #ifdef FONLINE_MAPPER
 void ProtoMap::SaveTextFormat( FileManager& fm )
