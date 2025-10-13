@@ -40,71 +40,69 @@ public:
     uint   Reserved[ 7 ];
     int    UserData[ 10 ];
 
+    struct MapObjectCritter
+    {
+        uchar Cond;
+        uint  Anim1;
+        uint  Anim2;
+        short ParamIndex[ MAPOBJ_CRITTER_PARAMS ];
+        int   ParamValue[ MAPOBJ_CRITTER_PARAMS ];
+    };
+
+    struct MapObjectAnim
+    {
+        short  OffsetX;
+        short  OffsetY;
+        uchar  AnimStayBegin;
+        uchar  AnimStayEnd;
+        ushort AnimWait;
+        uchar  InfoOffset;
+        uint   PicMapHash;
+        uint   PicInvHash;
+    };
+
+    struct MapObjectItem: MapObjectAnim
+    {
+        uint   Count;
+        uchar  ItemSlot;
+
+        uchar  BrokenFlags;
+        uchar  BrokenCount;
+        ushort Deterioration;
+
+        ushort AmmoPid;
+        uint   AmmoCount;
+
+        uint   LockerDoorId;
+        ushort LockerCondition;
+        ushort LockerComplexity;
+
+        short  TrapValue;
+
+        int    Val[ 10 ];
+    };
+
+    struct MapObjectScenery: MapObjectAnim
+    {
+        bool   CanUse;
+        bool   CanTalk;
+        uint   TriggerNum;
+
+        uchar  ParamsCount;
+        int    Param[ 5 ];
+
+        ushort ToMapPid;
+        uint   ToEntire;
+        uchar  ToDir;
+
+        uchar  SpriteCut;
+    };
+
     union
     {
-        struct
-        {
-            uchar Cond;
-            uint  Anim1;
-            uint  Anim2;
-            short ParamIndex[ MAPOBJ_CRITTER_PARAMS ];
-            int   ParamValue[ MAPOBJ_CRITTER_PARAMS ];
-        } MCritter;
-
-        struct
-        {
-            short  OffsetX;
-            short  OffsetY;
-            uchar  AnimStayBegin;
-            uchar  AnimStayEnd;
-            ushort AnimWait;
-            uchar  InfoOffset;
-            uint   PicMapHash;
-            uint   PicInvHash;
-
-            uint   Count;
-            uchar  ItemSlot;
-
-            uchar  BrokenFlags;
-            uchar  BrokenCount;
-            ushort Deterioration;
-
-            ushort AmmoPid;
-            uint   AmmoCount;
-
-            uint   LockerDoorId;
-            ushort LockerCondition;
-            ushort LockerComplexity;
-
-            short  TrapValue;
-
-            int    Val[ 10 ];
-        } MItem;
-
-        struct
-        {
-            short  OffsetX;
-            short  OffsetY;
-            uchar  AnimStayBegin;
-            uchar  AnimStayEnd;
-            ushort AnimWait;
-            uchar  InfoOffset;
-            uint   PicMapHash;
-            uint   PicInvHash;
-
-            bool   CanUse;
-            bool   CanTalk;
-            uint   TriggerNum;
-
-            uchar  ParamsCount;
-            int    Param[ 5 ];
-
-            ushort ToMapPid;
-            uint   ToEntire;
-            uchar  ToDir;
-
-            uchar  SpriteCut;
-        } MScenery;
+        MapObjectCritter MCritter;
+        MapObjectItem MItem;
+        MapObjectScenery MScenery;
     };
 
     struct _RunTime
@@ -140,6 +138,32 @@ public:
 
     void AddRef()  { ++RunTime.RefCounter; }
     void Release() { if( !--RunTime.RefCounter ) delete this; }
+
+    #ifdef CORROSION
+    void set_critter(MapObjectCritter critter) {
+        MCritter = critter;
+        MapObjType = MAP_OBJECT_CRITTER;
+    }
+    void set_item(MapObjectItem item) {
+        MItem = item;
+        MapObjType = MAP_OBJECT_ITEM;
+    }
+    void set_scenery(MapObjectScenery scenery) {
+        MScenery = scenery;
+        MapObjType = MAP_OBJECT_SCENERY;
+    }
+    void set_user_data(size_t index, int value) {
+        if( index < 10 ) {
+            UserData[index] = value;
+        }
+    }
+    void set_script_name(const char* script_name) {
+        Str::Copy(ScriptName, MAPOBJ_SCRIPT_NAME + 1, script_name);
+    }
+    void set_func_name(const char* func_name) {
+        Str::Copy(FuncName, MAPOBJ_SCRIPT_NAME + 1, func_name);
+    }
+    #endif // CORROSION
 };
 typedef vector< MapObject* > MapObjectPtrVec;
 typedef vector< MapObject >  MapObjectVec;
@@ -226,7 +250,7 @@ private:
     bool ReadHeader( FileManager& fm, int version );
     bool ReadTiles( FileManager& fm, int version );
     bool ReadObjects( FileManager& fm, int version );
-    bool LoadTextFormat( const char* buf );
+    bool LoadTextFormat( const char* buf ) NOEXCEPT;
     #ifdef FONLINE_MAPPER
     void SaveTextFormat( FileManager& fm );
     #endif
@@ -299,9 +323,11 @@ public:
     const char* GetName() { return pmapName.c_str(); }
 
 #ifdef CORROSION
-    TileVec const& GetTiles() const { return Tiles; }
-    SceneryClVec const& GetWallsToSend() const { return WallsToSend; }
-    SceneryClVec const& GetSceneriesToSend() const { return SceneriesToSend; }
+    TileVec const& get_tiles() const { return Tiles; }
+    TileVec& get_tiles_mut() { return Tiles; }
+    SceneryClVec const& get_walls_to_send() const { return WallsToSend; }
+    SceneryClVec const& get_sceneries_to_send() const { return SceneriesToSend; }
+    MapObjectPtrVec& get_all_map_objects_mut() { return MObjects; }
 #endif
 
     long RefCounter;
