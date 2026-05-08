@@ -1,5 +1,6 @@
 #include "StdAfx.h"
 #include "Server.h"
+#include "ServerConfig.h"
 
 #ifndef SERVER_LIB
 #include "FL/Fl.H"
@@ -17,6 +18,7 @@ int                         FOServer::UpdateIndex = -1;
 int                         FOServer::UpdateLastIndex = -1;
 uint                        FOServer::UpdateLastTick = 0;
 ClVec                       FOServer::LogClients;
+#ifndef CORRODED_NET
 Thread                      FOServer::ListenThread;
 SOCKET                      FOServer::ListenSock = INVALID_SOCKET;
 #if defined ( USE_LIBEVENT )
@@ -28,6 +30,7 @@ HANDLE                      FOServer::NetIOCompletionPort = NULL;
 Thread*                     FOServer::NetIOThreads = NULL;
 uint                        FOServer::NetIOThreadsCount = 0;
 #endif
+#endif // CORRODED_NET
 ClVec                       FOServer::ConnectedClients;
 Mutex                       FOServer::ConnectedClientsLocker;
 FOServer::Statistics_       FOServer::Statistics;
@@ -140,7 +143,7 @@ void FOServer::Finish()
         cl->Disconnect();
     }
     ConnectedClientsLocker.Unlock();
-
+#ifndef CORRODED_NET
     // Listen
     shutdown( ListenSock, SD_BOTH );
     closesocket( ListenSock );
@@ -167,6 +170,7 @@ void FOServer::Finish()
     CloseHandle( NetIOCompletionPort );
     NetIOCompletionPort = NULL;
     #endif
+#endif // CORRODED_NET
 
     // Managers
     AIMngr.Finish();
@@ -231,6 +235,7 @@ string FOServer::GetIngamePlayersStatistics()
     return result;
 }
 
+#ifndef CORRODED_CONFIG
 // Accesses
 void FOServer::GetAccesses( StrVec& client, StrVec& tester, StrVec& moder, StrVec& admin, StrVec& admin_names )
 {
@@ -256,6 +261,7 @@ void FOServer::GetAccesses( StrVec& client, StrVec& tester, StrVec& moder, StrVe
             Str::ParseLine( buf, ' ', admin_names, Str::ParseLineDummy );
     }
 }
+#endif // CORRODED_CONFIG
 
 void FOServer::DisconnectClient( Client* cl )
 {
@@ -666,6 +672,7 @@ void FOServer::Logic_Work( void* data )
             Client* cl = (Client*)CurrentJob.Data;
             SYNC_LOCK( cl );
 
+        #ifndef CORRODED_NET
             // Disconnect
             if( cl->IsOffline() )
             {
@@ -696,8 +703,18 @@ void FOServer::Logic_Work( void* data )
             if( cl->Sock == INVALID_SOCKET &&
                 InterlockedCompareExchange( &cl->NetIOIn->Operation, 0, 0 ) == WSAOP_FREE &&
                 InterlockedCompareExchange( &cl->NetIOOut->Operation, 0, 0 ) == WSAOP_FREE )
-            #endif
+            #endif 
             {
+        #else // CORRODED_NET
+            if( cl->IsOffline() )
+            {
+                cl->ReleaseNet();
+            }
+            
+            if (!cl->HasNet())
+            {
+        #endif // CORRODED_NET
+                
                 DisconnectClient( cl );
 
                 ConnectedClientsLocker.Lock();
@@ -954,6 +971,14 @@ void FOServer::Logic_Work( void* data )
     Script::FinishThread();
 }
 
+#ifdef CORRODED_NET
+static void FOServer::AddConnectedClient(Client* cl) {
+    ConnectedClientsLocker.Lock();
+    ConnectedClients.push_back( cl );
+    Statistics.CurOnline++;
+    ConnectedClientsLocker.Unlock();
+}
+#else
 void FOServer::Net_Listen( void* )
 {
     while( true )
@@ -1069,7 +1094,7 @@ void FOServer::Net_Listen( void* )
         # if !defined ( LIBEVENT_TIMEOUTS_WORKAROUND )
         timeval tv = { 0, 5 * 1000 };  // Check output data every 5ms
         bufferevent_set_timeouts( bev, NULL, &tv );
-        # endif
+        # endif // !LIBEVENT_TIMEOUTS_WORKAROUND
 
         // Setup bandwidth
         const uint                  rate = 100000; // 100kb per second
@@ -1090,7 +1115,7 @@ void FOServer::Net_Listen( void* )
         // Begin handle net events
         bufferevent_enable( bev, EV_WRITE | EV_READ );
         bufferevent_unlock( bev );
-        #endif
+        #endif // USE_LIBEVENT
 
         // Add job
         Job::PushBack( JOB_CLIENT, cl );
@@ -1905,7 +1930,15 @@ void FOServer::Process( ClientPtr& cl )
         }
     }
 }
+#endif // CORRODED_NET
 
+#ifdef CORRODED_NET
+void FOServer::Process_Text( Client* cl, const NetmsgText& msg )
+{
+    uchar  how_say = msg.how_say;
+    ushort len = msg.len;
+    const char* str = msg.text;
+#else
 void FOServer::Process_Text( Client* cl )
 {
     uint   msg_len = 0;
@@ -1928,6 +1961,7 @@ void FOServer::Process_Text( Client* cl )
     cl->Bin.Pop( str, len );
     str[ len ] = '\0';
     CHECK_IN_BUFF_ERROR( cl );
+#endif // CORRODED_NET
 
     if( !cl->IsLife() && how_say >= SAY_NORM && how_say <= SAY_RADIO )
         how_say = SAY_WHISP;
@@ -2076,6 +2110,7 @@ void FOServer::Process_Text( Client* cl )
     }
 }
 
+#ifndef CORRODED_NET
 void FOServer::Process_Command( BufferManager& buf, void ( * logcb )( const char* ), Client* cl_, const char* admin_panel )
 {
     uint  msg_len = 0;
@@ -2817,7 +2852,7 @@ void FOServer::Process_Command( BufferManager& buf, void ( * logcb )( const char
         DlgMngr.DlgPacksNames.clear();
         int errors = DlgMngr.LoadDialogs( DIALOGS_LST_NAME );
 
-        InitLangPacks( LangPacks );
+        InitLangPacks( LangPacks, ServerConfig::LoadConfigFile() );
         InitLangPacksDialogs( LangPacks );
         logcb( Str::FormatBuf( "Dialogs reload done, errors<%d>.", errors ) );
 
@@ -2847,7 +2882,7 @@ void FOServer::Process_Command( BufferManager& buf, void ( * logcb )( const char
 
                 if( DlgMngr.AddDialogs( pack ) )
                 {
-                    InitLangPacks( LangPacks );
+                    InitLangPacks( LangPacks, ServerConfig::LoadConfigFile() );
                     InitLangPacksDialogs( LangPacks );
                     logcb( "Load dialog success." );
                 }
@@ -2876,7 +2911,7 @@ void FOServer::Process_Command( BufferManager& buf, void ( * logcb )( const char
         SynchronizeLogicThreads();
 
         LangPackVec lang_packs;
-        if( InitLangPacks( lang_packs ) && InitLangPacksDialogs( lang_packs ) && InitCrafts( lang_packs ) )
+        if( InitLangPacks( lang_packs, ServerConfig::LoadConfigFile() ) && InitLangPacksDialogs( lang_packs ) && InitCrafts( lang_packs ) )
         {
             LangPacks = lang_packs;
             logcb( "Reload texts success." );
@@ -3285,6 +3320,7 @@ void FOServer::Process_Command( BufferManager& buf, void ( * logcb )( const char
         break;
     }
 }
+#endif // CORRODED_NET
 
 void FOServer::SaveGameInfoFile()
 {
@@ -3433,22 +3469,20 @@ void FOServer::InitGameTime()
     GameOpt.GameTimeTick = Timer::GameTick();
 }
 
-bool FOServer::Init()
+bool FOServer::Init(ServerConfig &cfg)
 {
+    SetServerOptions(cfg);
     ActiveOnce = true;
     Active = true;
     ActiveInProcess = true;
-    Active = InitReal();
+    Active = InitReal(cfg);
     ActiveInProcess = false;
     return Active;
 }
 
-bool FOServer::InitReal()
+bool FOServer::InitReal(ServerConfig &cfg)
 {
     FileManager::InitDataFiles( DIR_SLASH_SD );
-
-    IniParser cfg;
-    cfg.LoadFile( GetConfigFileName(), PT_SERVER_ROOT );
 
     WriteLog( "***   Starting initialization   ****\n" );
     /*
@@ -3560,21 +3594,20 @@ bool FOServer::InitReal()
     VarsGarbageLastTick = Timer::FastTick();
 
     // Profiler
-    uint sample_time = cfg.GetInt( "ProfilerSampleInterval", 0 );
-    uint profiler_mode = cfg.GetInt( "ProfilerMode", 0 );
+    uint sample_time = cfg.ProfilerSampleInterval;
+    uint profiler_mode = cfg.ProfilerMode;
     if( !profiler_mode )
         sample_time = 0;
     Script::Profiler::SetData( sample_time, ( ( profiler_mode & 1 ) != 0 ) ? 300000 : 0, ( ( profiler_mode & 2 ) != 0 ) );
 
     #ifndef DISABLE_CALLSTACK
     // DetailedCallStackInfo
-    Script::CallStackInfo::CallStackInfoMode = cfg.GetInt( "DetailedCallStackInfo", 0 );
-    Script::CallStackInfo::CallStackInfoMode = CLAMP( Script::CallStackInfo::CallStackInfoMode, 0, 2 );
+    Script::CallStackInfo::CallStackInfoMode = CLAMP( cfg.DetailedCallStackInfo, 0, 2 );
     #endif
 
     // Threading
-    LogicThreadSetAffinity = cfg.GetInt( "LogicThreadSetAffinity", 0 ) != 0;
-    LogicThreadCount = cfg.GetInt( "LogicThreadCount", 0 );
+    LogicThreadSetAffinity = cfg.LogicThreadSetAffinity;
+    LogicThreadCount = cfg.LogicThreadCount;
     if( sample_time )
         LogicThreadCount = 1;
     else if( !LogicThreadCount )
@@ -3606,7 +3639,7 @@ bool FOServer::InitReal()
     ConstantsManager::Initialize( PT_SERVER_DATA ); // Generate name of defines
     if( !InitScriptSystem() )
         return false;                               // Script system
-    if( !InitLangPacks( LangPacks ) )
+    if( !InitLangPacks( LangPacks, cfg ) )
         return false;                               // Language packs
     if( !ReloadClientScripts() )
         return false;                               // Client scripts, after language packs initialization
@@ -3685,6 +3718,7 @@ bool FOServer::InitReal()
     Statistics.DataCompressed = 1;
     Statistics.ServerStartTick = Timer::FastTick();
 
+#ifndef CORRODED_NET
     // Net
     #ifdef FO_WINDOWS
     WSADATA wsa;
@@ -3704,7 +3738,7 @@ bool FOServer::InitReal()
     ushort port;
     if( !Singleplayer )
     {
-        port = cfg.GetInt( "Port", 4000 );
+        port = cfg.Port;
         WriteLog( "Starting server on port<%u>.\n", port );
     }
     else
@@ -3743,7 +3777,7 @@ bool FOServer::InitReal()
         return false;
     }
 
-    NetIOThreadsCount = cfg.GetInt( "NetWorkThread", 0 );
+    NetIOThreadsCount = cfg.NetWorkThread;
     if( !NetIOThreadsCount )
         NetIOThreadsCount = CpuCount;
 
@@ -3819,16 +3853,20 @@ bool FOServer::InitReal()
 
     Client::SendData = &NetIO_Output;
     #endif
+#endif // CORRODED_NET
 
     // Start script
     if( !Script::PrepareContext( ServerFunctions.Start, _FUNC_, "Game" ) || !Script::RunPrepared() || !Script::GetReturnedBool() )
     {
         WriteLogF( _FUNC_, " - Start script fail.\n" );
+    #ifndef CORRODED_NET
         shutdown( ListenSock, SD_BOTH );
         closesocket( ListenSock );
+    #endif // CORRODED_NET
         return false;
     }
 
+#ifndef SERVER_LIB
     // Process command line definitions
     const char*      cmd_line = CommandLine;
     asIScriptEngine* engine = Script::GetEngine();
@@ -3863,6 +3901,7 @@ bool FOServer::InitReal()
             }
         }
     }
+#endif // SERVER_LIB
 
     ScriptSystemUpdate();
 
@@ -3875,7 +3914,7 @@ bool FOServer::InitReal()
         DumpEndEvent.Allow();
         DumpThread.Start( Dump_Work, "WorldSaveManager" );
     }
-    SaveWorldTime = cfg.GetInt( "WorldSaveTime", 60 ) * 60 * 1000;
+    SaveWorldTime = cfg.WorldSaveTime * 60 * 1000;
     SaveWorldNextTick = Timer::FastTick() + SaveWorldTime;
 
     Active = true;
@@ -3937,30 +3976,16 @@ bool FOServer::InitCrafts( LangPackVec& lang_packs )
     return true;
 }
 
-bool FOServer::InitLangPacks( LangPackVec& lang_packs )
+bool FOServer::InitLangPacks( LangPackVec& lang_packs, ServerConfig& cfg )
 {
     WriteLog( "Loading language packs...\n" );
 
-    IniParser cfg;
-    cfg.LoadFile( GetConfigFileName(), PT_SERVER_ROOT );
-    uint      cur_lang = 0;
-
-    while( true )
+    uchar cur_lang = 0;
+    for( ; cur_lang < cfg.LanguageCount; ++cur_lang )
     {
-        char cur_str_lang[ MAX_FOTEXT ];
-        char lang_name[ MAX_FOTEXT ];
-        Str::Format( cur_str_lang, "Language_%u", cur_lang );
+        const char* lang_name = cfg.GetLanguage(cur_lang);
 
-        if( !cfg.GetStr( cur_str_lang, "", lang_name ) )
-            break;
-
-        if( Str::Length( lang_name ) != 4 )
-        {
-            WriteLog( "Language name not equal to four letters.\n" );
-            return false;
-        }
-
-        uint pack_id = *(uint*) &lang_name;
+        uint pack_id = *(uint*) lang_name;
         if( std::find( lang_packs.begin(), lang_packs.end(), pack_id ) != lang_packs.end() )
         {
             WriteLog( "Language pack<%u> is already initialized.\n", cur_lang );
@@ -3975,7 +4000,6 @@ bool FOServer::InitLangPacks( LangPackVec& lang_packs )
         }
 
         lang_packs.push_back( lang );
-        cur_lang++;
     }
 
     WriteLog( "Loading language packs complete, loaded<%u> packs.\n", cur_lang );
@@ -4993,6 +5017,7 @@ void FOServer::ClearScore( int score )
     BestScores[ score ].Value = 0;
 }
 
+#ifndef CORRODED_NET
 void FOServer::Process_GetScores( Client* cl )
 {
     uint tick = Timer::FastTick();
@@ -5011,6 +5036,7 @@ void FOServer::Process_GetScores( Client* cl )
     cl->Bout.Push( scores, SCORE_NAME_LEN * SCORES_MAX );
     BOUT_END( cl );
 }
+#endif // CORRODED_NET
 
 /************************************************************************/
 /*                                                                      */

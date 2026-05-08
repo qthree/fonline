@@ -8,10 +8,12 @@
 
 #include "md5.h"
 
+#ifndef CORROSION
 // Global_LoadImage
 #include "PNG/png.h"
 #ifdef FO_WINDOWS
 # pragma comment( lib, "libpng15.lib" )
+#endif
 #endif
 
 void* ASDebugMalloc( size_t size )
@@ -136,6 +138,9 @@ bool FOServer::InitScriptSystem()
     // Load script modules
     Script::Undefine( NULL );
     Script::Define( "__SERVER" );
+#ifdef CORRODED_FILE_COLLECTION
+    Script::Define( "__CORRODED_FILE_COLLECTION" );
+#endif // CORRODED_FILE_COLLECTION
     if( !Script::ReloadScripts( (char*) scripts_cfg.GetBuf(), "server", false ) )
     {
         Script::Finish();
@@ -3636,6 +3641,7 @@ void FOServer::SScriptFunc::Crit_EventSmthTurnBasedProcess( Critter* cr, Critter
     cr->EventSmthTurnBasedProcess( from_cr, map, begin_turn );
 }
 
+#ifndef CORRODED_FILE_COLLECTION
 void FOServer::SScriptFunc::Crit_SendCollectionFile(Critter * cr, uint hash, int type, int p0, int p1, int p2, asIScriptFunction* func )
 {
 #ifndef DISABLE_AVATARS
@@ -3678,6 +3684,7 @@ void FOServer::SScriptFunc::Crit_SendCollectionFile(Critter * cr, uint hash, int
 	cr->Send_CollectionFile(buffer, type, p0, p1, p2);
 #endif // DISABLE_AVATARS
 }
+#endif // CORRODED_FILE_COLLECTION
 
 GameVar* FOServer::SScriptFunc::Global_GetGlobalVar( ushort tvar_id )
 {
@@ -6284,6 +6291,7 @@ ScriptString* FOServer::SScriptFunc::Global_GetCritterSoundName( uint cr_type )
     return new ScriptString( CritType::GetSoundName( cr_type ) );
 }
 
+#ifndef CORROSION
 struct ServerImage
 {
     UCharVec Data;
@@ -6308,7 +6316,7 @@ bool FOServer::SScriptFunc::Global_LoadImage( uint index, ScriptString* image_na
 
     // Check depth
     static uint image_depth_;
-    image_depth_ = image_depth; // Avoid GCC warning "argument ‘image_depth’ might be clobbered by ‘longjmp’ or ‘vfork’"
+    image_depth_ = image_depth; // Avoid GCC warning "argument 'image_depth' might be clobbered by 'longjmp' or 'fvfork'"
     if( image_depth < 1 || image_depth > 4 )
         SCRIPT_ERROR_R0( "Wrong image depth arg." );
 
@@ -6460,6 +6468,7 @@ uint FOServer::SScriptFunc::Global_GetImageColor( uint index, uint x, uint y )
     }
     return result;
 }
+#endif // CORROSION
 
 uint FOServer::SScriptFunc::Global_GetScriptId( ScriptString& script_name, ScriptString& func_decl )
 {

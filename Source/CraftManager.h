@@ -90,6 +90,9 @@ class Critter;
 class CritterCl;
 #endif
 
+class CraftManager;
+extern CraftManager MrFixit;
+
 class CraftManager
 {
 private:
@@ -148,8 +151,12 @@ private:
 public:
     int ProcessCraft( Critter* cr, uint num );
     #endif
-};
 
-extern CraftManager MrFixit;
+    #ifdef CORROSION
+    static inline CraftManager* Singleton() {
+        return &MrFixit;
+    }
+    #endif // CORROSION
+};
 
 #endif // __CRAFT_MANAGER__

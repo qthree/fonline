@@ -115,7 +115,7 @@
 
 // Libevent workarounds
 // Was bugged for Windows, need retest
-#if !defined ( FO_WINDOWS )
+#if !defined ( FO_WINDOWS ) && !defined( CORRODED_NET )
 # define USE_LIBEVENT
 // Linux don't want call write timeouts, need to know why and fix
 # define LIBEVENT_TIMEOUTS_WORKAROUND

@@ -35,6 +35,9 @@ public:
     void     EraseCrit( Critter* cr );
     void     Clear();
     GlobalMapGroup() { Clear(); }
+#ifdef CORROSION
+    uint get_rule_id() const { return ( Rule == NULL ) ? 0 : Rule->GetId(); }
+#endif // CORROSION
 };
 typedef vector< GlobalMapGroup* > GMapGroupVec;
 
@@ -123,6 +126,9 @@ struct PathStep
     uchar  Dir;
 };
 typedef vector< PathStep > PathStepVec;
+
+class MapManager;
+extern MapManager MapMngr;
 
 class MapManager
 {
@@ -214,8 +220,12 @@ public:
     int          FindPathGrid( ushort& hx, ushort& hy, int index, bool smooth_switcher );
     PathStepVec& GetPath( uint num ) { return pathesPool[ num ]; }
     void         PathSetMoveParams( PathStepVec& path, bool is_run );
-};
 
-extern MapManager MapMngr;
+#ifdef CORROSION
+    static inline MapManager* Singleton() {
+        return &MapMngr;
+    }
+#endif // CORROSION
+};
 
 #endif // __MAP_MANAGER__

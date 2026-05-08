@@ -23,5 +23,11 @@ EXPORT const ServerStatistics* Server_Statistics();
 EXPORT uint Timer_GameTick();
 EXPORT uint Timer_FastTick();
 EXPORT ServerGameOptions* Server_GameOptions();
+EXPORT ServerScriptFunctions* Server_ServerFunctions();
+
+#ifdef SERVER_LIB
+EXPORT uchar Global_StartServerLib( ServerConfig cfg );
+EXPORT void Global_StopServerLib( uchar code );
+#endif
 
 #endif // __API_SERVER__
