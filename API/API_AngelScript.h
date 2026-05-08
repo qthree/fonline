@@ -7,7 +7,7 @@
 typedef unsigned long	 asDWORD;
 struct asSFuncPtr;
 struct ScriptString;
-typedef unsigned char asEBehaviours;
+enum asEBehaviours;
 #endif //__API_IMPL__
 
 EXPORT int Script_RegisterObjectType(const char *obj, int byteSize, asDWORD flags);
