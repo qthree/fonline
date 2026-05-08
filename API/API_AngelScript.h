@@ -4,10 +4,14 @@
 #include "API_Common.h"
 
 #ifndef __API_IMPL__
-typedef unsigned long	 asDWORD;
+#ifdef FO_X86
+    typedef unsigned long	 asDWORD;
+#elif defined(FO_X64)
+    typedef unsigned int	 asDWORD;
+#endif
 struct asSFuncPtr;
 struct ScriptString;
-typedef unsigned char asEBehaviours;
+enum asEBehaviours;
 #endif //__API_IMPL__
 
 EXPORT int Script_RegisterObjectType(const char *obj, int byteSize, asDWORD flags);
