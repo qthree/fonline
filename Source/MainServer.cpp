@@ -18,7 +18,11 @@
 # include "FL/Fl_File_Icon.H"
 #endif
 
+#ifndef DISABLE_EXCEPTION_HANDLING
 #include "BugTrap/BugTrap.h"
+#else
+void BT_SetTerminate();
+#endif // DISABLE_EXCEPTION_HANDLING
 
 void InitAdminManager( IniParser* cfg );
 

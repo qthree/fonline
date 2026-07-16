@@ -2,14 +2,14 @@
 #include "Common.h"
 #include "Exception.h"
 
-#include "BugTrap/BugTrap.h"
-
 #ifdef DISABLE_EXCEPTION_HANDLING
 
 void SetupExceptionHandler( const string& app_name, int app_ver ) {}
 void CreateDump( const string& appendix, const string& message ) {}
+void BT_SetTerminate() {}
 
 #else // DISABLE_EXCEPTION_HANDLING
+#include "BugTrap/BugTrap.h"
 #include "Script.h"
 #include "Version.h"
 

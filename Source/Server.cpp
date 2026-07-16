@@ -8,7 +8,11 @@
 
 #include "md5.h"
 
+#ifndef DISABLE_EXCEPTION_HANDLING
 #include "BugTrap/BugTrap.h"
+#else
+void BT_SetTerminate();
+#endif // DISABLE_EXCEPTION_HANDLING
 
 void* zlib_alloc( void* opaque, unsigned int items, unsigned int size ) { return calloc( items, size ); }
 void  zlib_free( void* opaque, void* address )                          { free( address ); }

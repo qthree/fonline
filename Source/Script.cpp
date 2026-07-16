@@ -13,7 +13,11 @@
 #include "AngelScript/Preprocessor/preprocess.h"
 #include <strstream>
 
+#ifndef DISABLE_EXCEPTION_HANDLING
 #include "BugTrap/BugTrap.h"
+#else
+void BT_SetTerminate();
+#endif // DISABLE_EXCEPTION_HANDLING
 
 const char* ContextStatesStr[] =
 {
