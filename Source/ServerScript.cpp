@@ -252,7 +252,13 @@ int FOServer::DialogGetParam( Critter* master, Critter* slave, uint index )
 /************************************************************************/
 /* Client script processing                                             */
 /************************************************************************/
-
+#ifdef DISABLE_RELOAD_CLIENT_SCRIPTS
+bool FOServer::ReloadClientScripts()
+{
+    WriteLog( "Client scripts reloading is disabled.\n" );
+    return true;
+}
+#else
 #undef BIND_SERVER
 #undef BIND_CLASS
 #undef BIND_ASSERT
@@ -527,7 +533,7 @@ bool FOServer::ReloadClientScripts()
     WriteLog( "Reload client scripts complete.\n" );
     return true;
 }
-
+#endif // DISABLE_RELOAD_CLIENT_SCRIPTS
 /************************************************************************/
 /* Wrapper functions                                                    */
 /************************************************************************/

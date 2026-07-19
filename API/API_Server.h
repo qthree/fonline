@@ -17,6 +17,7 @@ EXPORT ServerScriptFunctions* Server_ServerFunctions();
 #ifdef SERVER_LIB
 EXPORT uchar Global_StartServerLib( ServerConfig cfg );
 EXPORT void Global_StopServerLib( uchar code );
+EXPORT uchar Global_CompileClientScripts( ServerConfig cfg );
 #endif
 
 #endif // __API_SERVER__
