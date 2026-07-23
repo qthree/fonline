@@ -72,7 +72,7 @@ struct ServerConfig
             LanguageCount += 1;
         }
     }
-    const char* GetLanguage(uchar index) {
+    const char* GetLanguage(uchar index) const {
         return &Languages[SERVER_CONFIG_LANGUAGE_LENGTH_WITH_NUL * index];
     }
 

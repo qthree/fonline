@@ -15,9 +15,9 @@ EXPORT ServerGameOptions* Server_GameOptions();
 EXPORT ServerScriptFunctions* Server_ServerFunctions();
 
 #ifdef SERVER_LIB
-EXPORT uchar Global_StartServerLib( ServerConfig cfg );
+EXPORT uchar Global_StartServerLib( const ServerConfig cfg );
 EXPORT void Global_StopServerLib( uchar code );
-EXPORT uchar Global_CompileClientScripts( ServerConfig cfg );
+EXPORT uchar Global_CompileClientScripts( const ServerConfig cfg );
 #endif
 
 #endif // __API_SERVER__
