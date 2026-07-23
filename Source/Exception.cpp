@@ -3,7 +3,7 @@
 
 #ifdef DISABLE_EXCEPTION_HANDLING
 
-void CatchExceptions( const string& app_name, int app_ver ) {}
+void CatchExceptions( const char* app_name, unsigned int app_ver ) {}
 void SetExceptionsRussianText() {}
 void CreateDump( const char* appendix ) {}
 
