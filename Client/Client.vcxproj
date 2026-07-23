@@ -560,23 +560,23 @@
     <ClInclude Include="..\Source\ResourceClient.h" />
     <ClInclude Include="..\Source\ScriptWindow.h" />
     <ClInclude Include="..\Source\Sprites.h" />
-    <ClInclude Include="..\Source\Zlib\crc32.h" />
+    <ClInclude Include="..\Source\zlib\crc32.h" />
     <ClInclude Include="..\Source\zlib\crypt.h" />
-    <ClInclude Include="..\Source\Zlib\deflate.h" />
+    <ClInclude Include="..\Source\zlib\deflate.h" />
     <ClInclude Include="..\Source\zlib\gzguts.h" />
-    <ClInclude Include="..\Source\Zlib\inffast.h" />
-    <ClInclude Include="..\Source\Zlib\inffixed.h" />
-    <ClInclude Include="..\Source\Zlib\inflate.h" />
-    <ClInclude Include="..\Source\Zlib\inftrees.h" />
-    <ClInclude Include="..\Source\Zlib\ioapi.h" />
+    <ClInclude Include="..\Source\zlib\inffast.h" />
+    <ClInclude Include="..\Source\zlib\inffixed.h" />
+    <ClInclude Include="..\Source\zlib\inflate.h" />
+    <ClInclude Include="..\Source\zlib\inftrees.h" />
+    <ClInclude Include="..\Source\zlib\ioapi.h" />
     <ClInclude Include="..\Source\zlib\iowin32.h" />
     <ClInclude Include="..\Source\zlib\mztools.h" />
-    <ClInclude Include="..\Source\Zlib\trees.h" />
-    <ClInclude Include="..\Source\Zlib\unzip.h" />
-    <ClInclude Include="..\Source\Zlib\zconf.h" />
+    <ClInclude Include="..\Source\zlib\trees.h" />
+    <ClInclude Include="..\Source\zlib\unzip.h" />
+    <ClInclude Include="..\Source\zlib\zconf.h" />
     <ClInclude Include="..\Source\zlib\zip.h" />
-    <ClInclude Include="..\Source\Zlib\zlib.h" />
-    <ClInclude Include="..\Source\Zlib\zutil.h" />
+    <ClInclude Include="..\Source\zlib\zlib.h" />
+    <ClInclude Include="..\Source\zlib\zutil.h" />
     <ClInclude Include="..\Source\Acm\acmstrm.h" />
     <ClInclude Include="..\Source\ogg\codec.h" />
     <ClInclude Include="..\Source\ogg\ogg.h" />
@@ -668,14 +668,15 @@
     <ClInclude Include="..\Source\AngelScript\scriptfile.h" />
     <ClInclude Include="..\Source\AngelScript\scriptmath.h" />
     <ClInclude Include="..\Source\AngelScript\Preprocessor\define_table.h" />
+    <ClInclude Include="..\Source\AngelScript\Preprocessor\expressions.h" />
     <ClInclude Include="..\Source\AngelScript\Preprocessor\lex.h" />
     <ClInclude Include="..\Source\AngelScript\Preprocessor\lexem_list.h" />
     <ClInclude Include="..\Source\AngelScript\Preprocessor\line_number_translator.h" />
     <ClInclude Include="..\Source\AngelScript\Preprocessor\pragma.h" />
     <ClInclude Include="..\Source\AngelScript\Preprocessor\preprocess.h" />
     <ClInclude Include="..\Source\AngelScript\Preprocessor\stream.h" />
-    <ClInclude Include="..\Source\datfile\cfile.h" />
-    <ClInclude Include="..\Source\datfile\unlzss.h" />
+    <ClInclude Include="..\Source\DatFile\cfile.h" />
+    <ClInclude Include="..\Source\DatFile\unlzss.h" />
     <ClInclude Include="..\Source\Assimp\aiAnim.h" />
     <ClInclude Include="..\Source\Assimp\aiAssert.h" />
     <ClInclude Include="..\Source\Assimp\aiCamera.h" />
@@ -761,7 +762,7 @@
     <ClCompile Include="..\Source\ScriptWindow.cpp" />
     <ClCompile Include="..\Source\SpriteManagerFont.cpp" />
     <ClCompile Include="..\Source\Sprites.cpp" />
-    <ClCompile Include="..\Source\Zlib\adler32.c">
+    <ClCompile Include="..\Source\zlib\adler32.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
       </PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -775,7 +776,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseD3D|x64'">
       </PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\Source\Zlib\compress.c">
+    <ClCompile Include="..\Source\zlib\compress.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
       </PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -789,7 +790,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseD3D|x64'">
       </PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\Source\Zlib\crc32.c">
+    <ClCompile Include="..\Source\zlib\crc32.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
       </PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -803,7 +804,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseD3D|x64'">
       </PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\Source\Zlib\deflate.c">
+    <ClCompile Include="..\Source\zlib\deflate.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
       </PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -821,7 +822,7 @@
     <ClCompile Include="..\Source\zlib\gzlib.c" />
     <ClCompile Include="..\Source\zlib\gzread.c" />
     <ClCompile Include="..\Source\zlib\gzwrite.c" />
-    <ClCompile Include="..\Source\Zlib\infback.c">
+    <ClCompile Include="..\Source\zlib\infback.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
       </PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -835,7 +836,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseD3D|x64'">
       </PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\Source\Zlib\inffast.c">
+    <ClCompile Include="..\Source\zlib\inffast.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
       </PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -849,7 +850,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseD3D|x64'">
       </PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\Source\Zlib\inflate.c">
+    <ClCompile Include="..\Source\zlib\inflate.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
       </PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -863,7 +864,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseD3D|x64'">
       </PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\Source\Zlib\inftrees.c">
+    <ClCompile Include="..\Source\zlib\inftrees.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
       </PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -877,7 +878,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseD3D|x64'">
       </PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\Source\Zlib\ioapi.c">
+    <ClCompile Include="..\Source\zlib\ioapi.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
       </PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -893,7 +894,7 @@
     </ClCompile>
     <ClCompile Include="..\Source\zlib\iowin32.c" />
     <ClCompile Include="..\Source\zlib\mztools.c" />
-    <ClCompile Include="..\Source\Zlib\trees.c">
+    <ClCompile Include="..\Source\zlib\trees.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
       </PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -907,7 +908,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseD3D|x64'">
       </PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\Source\Zlib\uncompr.c">
+    <ClCompile Include="..\Source\zlib\uncompr.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
       </PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -921,7 +922,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseD3D|x64'">
       </PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\Source\Zlib\unzip.c">
+    <ClCompile Include="..\Source\zlib\unzip.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
       </PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -936,7 +937,7 @@
       </PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="..\Source\zlib\zip.c" />
-    <ClCompile Include="..\Source\Zlib\zutil.c">
+    <ClCompile Include="..\Source\zlib\zutil.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
       </PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -1617,7 +1618,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseD3D|x64'">
       </PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\Source\datfile\cfile.cpp">
+    <ClCompile Include="..\Source\DatFile\cfile.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
       </PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -1631,7 +1632,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseD3D|x64'">
       </PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\Source\datfile\unlzss.cpp">
+    <ClCompile Include="..\Source\DatFile\unlzss.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
       </PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
