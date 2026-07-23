@@ -43,6 +43,7 @@ namespace Keyb
     bool        KeyPressed[ 0x100 ] = { 0 };
 }
 
+#ifndef CALCINATION
 class ClipboardReceiverWidget: public Fl_Widget
 {
 public:
@@ -63,6 +64,7 @@ public:
     string Buffer;
     Mutex  BufferLocker;
 } ClipboardReceiver;
+#endif // CALCINATION
 
 void Keyb::InitKeyb()
 {
@@ -229,6 +231,7 @@ void Keyb::GetChar( uchar dik, char* str, int* position, int max, int flags )
                 str[ i ] = str[ i + 1 ];
         str[ len - 1 ] = '\0';
     }
+    #ifndef CALCINATION
     // Clipboard
     else if( CtrlDwn && !ShiftDwn && len > 0 && ( dik == DIK_C || dik == DIK_X ) )
     {
@@ -278,6 +281,7 @@ void Keyb::GetChar( uchar dik, char* str, int* position, int max, int flags )
         }
         delete[] text;
     }
+    #endif // CALCINATION
     // Data
     else
     {

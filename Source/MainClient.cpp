@@ -107,11 +107,13 @@ int main( int argc, char** argv )
     }
     #endif
 
+    #ifndef CALCINATION
     // Init window threading
     #ifdef FO_LINUX
     XInitThreads();
     #endif
     Fl::lock();
+    #endif // CALCINATION
 
     // Check for already runned window
     #ifndef DEV_VESRION
@@ -131,6 +133,7 @@ int main( int argc, char** argv )
 
     // Create window
     MainWindow = new FOWindow();
+#ifndef CALCINATION
     MainWindow->label( GetWindowName() );
     MainWindow->position( ( Fl::w() - MODE_WIDTH ) / 2, ( Fl::h() - MODE_HEIGHT ) / 2 );
     MainWindow->size( MODE_WIDTH, MODE_HEIGHT );
@@ -186,15 +189,21 @@ int main( int argc, char** argv )
     if( GameOpt.AlwaysOnTop )
         SetWindowPos( fl_xid( MainWindow ), HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE );
     #endif
-
+#endif // CALCINATION
     // Start
     WriteLog( "Starting FOnline (version %04X-%02X)...\n", CLIENT_VERSION, FO_PROTOCOL_VERSION & 0xFF );
     Game.Start( GameThread, "Main" );
 
+#ifndef CALCINATION
     // Loop
     while( !GameOpt.Quit && Fl::wait() )
         ;
     Fl::unlock();
+#else
+    while ( !GameOpt.Quit ) {
+        Sleep(1000);
+    }
+#endif // CALCINATION
     GameOpt.Quit = true;
     Game.Wait();
 
@@ -232,11 +241,12 @@ void GameThread( void* )
     delete FOEngine;
 }
 
+#ifndef CALCINATION
 int FOWindow::handle( int event )
 {
     if( !FOEngine || GameOpt.Quit )
         return 0;
-
+        
     // Keyboard
     if( event == FL_KEYDOWN || event == FL_KEYUP )
     {
@@ -268,3 +278,4 @@ int FOWindow::handle( int event )
 
     return 0;
 }
+#endif // CALCINATION

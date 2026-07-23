@@ -11504,6 +11504,7 @@ void FOClient::SaveLoadSaveGame( const char* name )
 
     // Get image data from surface
     UCharVec pic_data;
+    #ifndef CALCINATION
     if( SaveLoadDraftValid )
     {
         #ifdef FO_D3D
@@ -11538,6 +11539,7 @@ void FOClient::SaveLoadSaveGame( const char* name )
         delete[] data;
         #endif
     }
+    #endif // CALCINATION
 
     // Send request
     Net_SendSaveLoad( true, fname, &pic_data );
@@ -11580,6 +11582,7 @@ void FOClient::SaveLoadShowDraft()
     {
         // Get surface from image data
         SaveLoadDataSlot& slot = SaveLoadDataSlots[ SaveLoadSlotIndex ];
+        #ifndef CALCINATION
         if( !slot.PicData.empty() )
         {
             #ifdef FO_D3D
@@ -11603,6 +11606,7 @@ void FOClient::SaveLoadShowDraft()
             ilDeleteImages( 1, &img );
             #endif
         }
+        #endif // CALCINATION
     }
     else if( SaveLoadSave && SaveLoadSlotIndex == (int) SaveLoadDataSlots.size() )
     {

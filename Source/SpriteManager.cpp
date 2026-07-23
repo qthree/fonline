@@ -133,9 +133,11 @@ bool SpriteManager::Init( SpriteMngrParams& params )
     D3D_HR( direct3D->CreateDevice( D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, fl_xid( MainWindow ), vproc, &presentParams, &d3dDevice ) );
     #else
     // Create context
+    #ifndef CALCINATION
     Fl::lock();
     gl_start();
     Fl::unlock();
+    #endif // CALCINATION
     GL( glDisable( GL_SCISSOR_TEST ) );
     GL( glDrawBuffer( GL_BACK ) );
     GL( glViewport( 0, 0, MainWindow->w(), MainWindow->h() ) );
@@ -1357,6 +1359,7 @@ void SpriteManager::SaveSufaces()
 #ifndef FO_D3D
 void SpriteManager::SaveTexture( Texture* tex, const char* fname, bool flip )
 {
+#ifndef CALCINATION
     // Size
     uint w = ( tex ? tex->Width : MainWindow->w() );
     uint h = ( tex ? tex->Height : MainWindow->h() );
@@ -1421,6 +1424,7 @@ void SpriteManager::SaveTexture( Texture* tex, const char* fname, bool flip )
     ilDeleteImages( 1, &img );
     if( !tex )
         delete[] data;
+#endif // CALCINATION
 }
 #endif
 
@@ -3481,6 +3485,9 @@ AnyFrames* SpriteManager::LoadAnimationBam( const char* fname, int path_type )
 
 AnyFrames* SpriteManager::LoadAnimationOther( const char* fname, int path_type )
 {
+#ifdef CALCINATION
+    return NULL;
+#else
     // Load file
     FileManager fm;
     if( !fm.LoadFile( fname, path_type ) )
@@ -3554,6 +3561,7 @@ AnyFrames* SpriteManager::LoadAnimationOther( const char* fname, int path_type )
         return NULL;
     anim->Ind[ 0 ] = result;
     return anim;
+#endif // CALCINATION
 }
 
 uint SpriteManager::Render3dSprite( Animation3d* anim3d, int dir, int time_proc )
