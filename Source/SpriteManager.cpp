@@ -2712,7 +2712,7 @@ AnyFrames* SpriteManager::LoadAnimationSpr( const char* fname, int path_type, in
         }
     }
     if( !seq_founded )
-        return false;
+        return NULL;
 
     // Find animation
     fm.SetCurPos( 0 );
