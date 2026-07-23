@@ -288,7 +288,7 @@ public:
 
     // Lang packs
     static LangPackVec LangPacks;     // Todo: synchronize
-    static bool InitLangPacks( LangPackVec& lang_packs, ServerConfig& cfg );
+    static bool InitLangPacks( LangPackVec& lang_packs, const ServerConfig& cfg );
     static bool InitLangPacksDialogs( LangPackVec& lang_packs );
     static void FinishLangPacks();
     static bool InitLangCrTypes( LangPackVec& lang_packs );
@@ -297,8 +297,8 @@ public:
     #endif // CORROSION
 
     // Init/Finish
-    static bool Init(ServerConfig &cfg);
-    static bool InitReal(ServerConfig &cfg);
+    static bool Init(const ServerConfig &cfg);
+    static bool InitReal(const ServerConfig &cfg);
     static void Finish();
     static bool Starting() { return Active && ActiveInProcess; }
     static bool Started()  { return Active && !ActiveInProcess; }

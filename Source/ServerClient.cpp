@@ -1878,7 +1878,6 @@ void FOServer::Process_LogIn( ClientPtr& cl ) {
             return;
         }
     }
-}
 #else
 void FOServer::Process_LogIn( ClientPtr& cl, const NetmsgLogin& msg )
 {

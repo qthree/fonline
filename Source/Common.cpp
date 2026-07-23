@@ -1422,7 +1422,7 @@ uint VarsGarbageTime = 3600000;
 bool WorldSaveManager = true;
 bool LogicMT = false;
 
-void SetServerOptions(ServerConfig &cfg)
+void SetServerOptions(const ServerConfig &cfg)
 {
     ServerGameSleep = cfg.GameSleep;
     Script::SetConcurrentExecution( cfg.ScriptConcurrentExecution );

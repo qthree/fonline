@@ -136,7 +136,7 @@ extern "C" void server_lib_log( char* str );
 
 static volatile uchar exit_code = 0;
 
-void init_server_lib(ServerConfig &cfg)
+void init_server_lib(const ServerConfig &cfg)
 {
     // Stuff
     Timer::Init();
@@ -154,7 +154,7 @@ void init_server_lib(ServerConfig &cfg)
     WriteLog( "FOnline server library, version %04X-%02X.\n", SERVER_VERSION, FO_PROTOCOL_VERSION & 0xFF );
 }
 
-uchar Global_StartServerLib( ServerConfig cfg )
+uchar Global_StartServerLib( const ServerConfig cfg )
 {
     init_server_lib(cfg);
 
@@ -195,7 +195,7 @@ namespace ClientScriptsCompiler
 #undef BIND_CLASS
 #undef BIND_ASSERT
 
-bool compile_client_scripts(ServerConfig &cfg )
+bool compile_client_scripts(const ServerConfig &cfg )
 {
     WriteLog( "Compile client scripts...\n" );
 
@@ -415,7 +415,7 @@ bool compile_client_scripts(ServerConfig &cfg )
     
 }
 
-uchar Global_CompileClientScripts(ServerConfig cfg)
+uchar Global_CompileClientScripts(const ServerConfig cfg)
 {
     init_server_lib(cfg);
     

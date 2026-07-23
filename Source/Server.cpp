@@ -3465,7 +3465,7 @@ void FOServer::InitGameTime()
     GameOpt.GameTimeTick = Timer::GameTick();
 }
 
-bool FOServer::Init(ServerConfig &cfg)
+bool FOServer::Init(const ServerConfig &cfg)
 {
     SetServerOptions(cfg);
     ActiveOnce = true;
@@ -3476,7 +3476,7 @@ bool FOServer::Init(ServerConfig &cfg)
     return Active;
 }
 
-bool FOServer::InitReal(ServerConfig &cfg)
+bool FOServer::InitReal(const ServerConfig &cfg)
 {
     FileManager::InitDataFiles( DIR_SLASH_SD );
 
@@ -3932,7 +3932,7 @@ bool FOServer::InitReal(ServerConfig &cfg)
     return true;
 }
 
-bool FOServer::InitLangPacks( LangPackVec& lang_packs, ServerConfig& cfg )
+bool FOServer::InitLangPacks( LangPackVec& lang_packs, const ServerConfig& cfg )
 {
     WriteLog( "Loading language packs...\n" );
 

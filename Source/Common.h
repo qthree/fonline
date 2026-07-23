@@ -522,7 +522,7 @@ extern uint VarsGarbageTime;
 extern bool WorldSaveManager;
 extern bool LogicMT;
 
-void SetServerOptions(ServerConfig &cfg);
+void SetServerOptions(const ServerConfig &cfg);
 
 struct ServerScriptFunctions
 {
