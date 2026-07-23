@@ -550,7 +550,7 @@ int StringFindLastNotOf( ScriptString* str, ScriptString* chars, int start )
 // The resulting array has the following elements:
 //
 // {"A", "B", "", "D"}
-ScriptArray* StringSplit( ScriptString* str, ScriptString* delim )
+CScriptArray* StringSplit( ScriptString* str, ScriptString* delim )
 {
     // Obtain a pointer to the engine
     asIScriptContext* ctx = asGetActiveContext();
@@ -561,7 +561,7 @@ ScriptArray* StringSplit( ScriptString* str, ScriptString* delim )
     asIObjectType* arrayType = engine->GetObjectTypeById( engine->GetTypeIdByDecl( "array<string@>" ) );
 
     // Create the array object
-    ScriptArray* array = new ScriptArray( 0, arrayType );
+    CScriptArray* array = new CScriptArray( 0, arrayType );
 
     // Find the existence of the delimiter in the input string
     int pos = 0, prev = 0, count = 0;
@@ -597,7 +597,7 @@ ScriptArray* StringSplit( ScriptString* str, ScriptString* delim )
 // The resulting array has the following elements:
 //
 // {"A", "B", "D", "E", "F"}
-ScriptArray* StringSplitEx( ScriptString* str, ScriptString* delim )
+CScriptArray* StringSplitEx( ScriptString* str, ScriptString* delim )
 {
     // Obtain a pointer to the engine
     asIScriptContext* ctx = asGetActiveContext();
@@ -608,7 +608,7 @@ ScriptArray* StringSplitEx( ScriptString* str, ScriptString* delim )
     asIObjectType* arrayType = engine->GetObjectTypeById( engine->GetTypeIdByDecl( "array<string@>" ) );
 
     // Create the array object
-    ScriptArray* array = new ScriptArray( 0, arrayType );
+    CScriptArray* array = new CScriptArray( 0, arrayType );
 
     // Find the existence of the delimiter in the input string
     const char* cstr = str->c_str();
@@ -658,12 +658,15 @@ ScriptArray* StringSplitEx( ScriptString* str, ScriptString* delim )
 // The resulting string is:
 //
 // "A|B||D"
-ScriptString* StringJoin( ScriptArray* array, ScriptString* delim )
+ScriptString* StringJoin( CScriptArray* array, ScriptString* delim )
 {
     // Create the new string
     ScriptString* str = new ScriptString();
-    int           n;
-    for( n = 0; n < (int) array->GetSize() - 1; n++ )
+	const int arraySize = array->GetSize( );
+	if( arraySize == 0 )
+		return str;
+    int n = 0;
+    for( ; n < arraySize - 1; n++ )
     {
         ScriptString* part = *(ScriptString**) array->At( n );
         *str += *part;

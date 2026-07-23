@@ -191,6 +191,7 @@
     <ResourceCompile Include="Server.rc" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\Source\AngelScript\Preprocessor\expressions.cpp" />
     <ClCompile Include="..\API\API_Server.cpp" />
     <ClCompile Include="..\API\API_AngelScript.cpp" />
     <ClCompile Include="..\Source\AngelScript\scriptstring.cpp">

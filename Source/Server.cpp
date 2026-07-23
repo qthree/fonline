@@ -3432,7 +3432,7 @@ bool FOServer::InitReal(ServerConfig &cfg)
     STATIC_ASSERT( sizeof( SOCKET ) == 4 );
     STATIC_ASSERT( sizeof( sockaddr_in ) == 16 );
     STATIC_ASSERT( sizeof( GameOptions ) == 1312 );
-    STATIC_ASSERT( sizeof( ScriptArray ) == 36 );
+    STATIC_ASSERT( sizeof( ScriptArray ) == 28 );
     STATIC_ASSERT( sizeof( ProtoMap::Tile ) == 12 );
     STATIC_ASSERT( PROTO_ITEM_USER_DATA_SIZE == 500 );
     STATIC_ASSERT( OFFSETOF( Item, IsNotValid ) == 146 );

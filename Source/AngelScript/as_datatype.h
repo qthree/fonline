@@ -1,6 +1,6 @@
 /*
    AngelCode Scripting Library
-   Copyright (c) 2003-2011 Andreas Jonsson
+   Copyright (c) 2003-2015 Andreas Jonsson
 
    This software is provided 'as-is', without any express or implied 
    warranty. In no event will the authors be held liable for any 
@@ -49,6 +49,11 @@ struct asSTypeBehaviour;
 class asCScriptEngine;
 class asCObjectType;
 class asCScriptFunction;
+class asCModule;
+struct asSNameSpace;
+
+// TODO: refactor: Reference should not be part of the datatype. This should be stored separately, e.g. in asCTypeInfo
+//                 MakeReference, MakeReadOnly, IsReference, IsReadOnly should be removed
 
 class asCDataType
 {
@@ -59,51 +64,59 @@ public:
 
 	bool IsValid() const;
 
-	asCString Format() const;
+	asCString Format(asSNameSpace *currNs, bool includeNamespace = false) const;
 
 	static asCDataType CreatePrimitive(eTokenType tt, bool isConst);
 	static asCDataType CreateObject(asCObjectType *ot, bool isConst);
+	static asCDataType CreateAuto(bool isConst);
 	static asCDataType CreateObjectHandle(asCObjectType *ot, bool isConst);
 	static asCDataType CreateFuncDef(asCScriptFunction *ot);
 	static asCDataType CreateNullHandle();
 
 	int MakeHandle(bool b, bool acceptHandleForScope = false);
-	int MakeArray(asCScriptEngine *engine);
+	int MakeArray(asCScriptEngine *engine, asCModule *requestingModule);
 	int MakeReference(bool b);
 	int MakeReadOnly(bool b);
 	int MakeHandleToConst(bool b);
 
-	bool IsTemplate()       const;
-	bool IsScriptObject()   const;
-	bool IsPrimitive()      const;
-	bool IsObject()         const;
-	bool IsReference()      const {return isReference;}
-	bool IsReadOnly()       const; 
-	bool IsIntegerType()    const;
-	bool IsUnsignedType()   const;
-	bool IsFloatType()      const;
-	bool IsDoubleType()     const;
-	bool IsBooleanType()    const;
-	bool IsObjectHandle()   const {return isObjectHandle;}
-	bool IsHandleToConst()  const;
-	bool IsArrayType()      const;
-	bool IsEnumType()       const;
+	bool IsTemplate()             const;
+	bool IsScriptObject()         const;
+	bool IsPrimitive()            const;
+	bool IsMathType()             const;
+	bool IsObject()               const;
+	bool IsReference()            const {return isReference;}
+	bool IsAuto()                 const {return isAuto;}
+	bool IsReadOnly()             const;
+	bool IsIntegerType()          const;
+	bool IsUnsignedType()         const;
+	bool IsFloatType()            const;
+	bool IsDoubleType()           const;
+	bool IsBooleanType()          const;
+	bool IsObjectHandle()         const {return isObjectHandle;}
+	bool IsHandleToAuto()         const {return isAuto && isObjectHandle;}
+	bool IsHandleToConst()        const;
+	bool IsArrayType()            const;
+	bool IsEnumType()             const;
+	bool IsAnyType()              const {return tokenType == ttQuestion;}
+	bool IsHandleToAsHandleType() const {return isHandleToAsHandleType;}
+	bool IsAbstractClass()        const;
+	bool IsInterface()            const;
 
-	bool IsSamePrimitiveBaseType(const asCDataType &dt)    const;
+	bool IsObjectConst()    const;
+
 	bool IsEqualExceptRef(const asCDataType &)             const;
 	bool IsEqualExceptRefAndConst(const asCDataType &)     const;
 	bool IsEqualExceptConst(const asCDataType &)           const;
-	bool IsEqualExceptInterfaceType(const asCDataType &dt) const;
 	bool IsNullHandle()                                    const;
 
 	bool SupportHandles() const;
-	bool CanBeInstanciated() const;
+	bool CanBeInstantiated() const;
 	bool CanBeCopied() const;
 
 	bool operator ==(const asCDataType &) const;
 	bool operator !=(const asCDataType &) const;
 
-	asCDataType        GetSubType()    const;
+	asCDataType        GetSubType(asUINT subtypeIndex = 0)    const;
 	eTokenType         GetTokenType()  const {return tokenType;}
 	asCObjectType     *GetObjectType() const {return objectType;}
 	asCScriptFunction *GetFuncDef()    const {return funcDef;}
@@ -111,10 +124,13 @@ public:
 	int  GetSizeOnStackDWords()  const;
 	int  GetSizeInMemoryBytes()  const;
 	int  GetSizeInMemoryDWords() const;
+#ifdef WIP_16BYTE_ALIGN
+	int  GetAlignment()          const;
+#endif
 
 	void SetTokenType(eTokenType tt)         {tokenType = tt;}
 	void SetObjectType(asCObjectType *obj)   {objectType = obj;}
-	void SetFuncDef(asCScriptFunction *func) { asASSERT(funcDef); funcDef = func; }
+	void SetFuncDef(asCScriptFunction *func) {asASSERT(funcDef); funcDef = func; }
 
 	asCDataType &operator =(const asCDataType &);
 
@@ -133,7 +149,9 @@ protected:
 	bool isReadOnly:1;
 	bool isObjectHandle:1;
 	bool isConstHandle:1;
-	char dummy:4;
+	bool isAuto:1;
+	bool isHandleToAsHandleType:1; // Used by the compiler to know how to initialize the object
+	char dummy:2;
 };
 
 END_AS_NAMESPACE

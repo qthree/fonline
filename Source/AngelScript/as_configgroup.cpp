@@ -1,6 +1,6 @@
 /*
    AngelCode Scripting Library
-   Copyright (c) 2003-2012 Andreas Jonsson
+   Copyright (c) 2003-2014 Andreas Jonsson
 
    This software is provided 'as-is', without any express or implied 
    warranty. In no event will the authors be held liable for any 
@@ -40,6 +40,7 @@
 #include "as_config.h"
 #include "as_configgroup.h"
 #include "as_scriptengine.h"
+#include "as_texts.h"
 
 BEGIN_AS_NAMESPACE
 
@@ -87,10 +88,29 @@ void asCConfigGroup::RefConfigGroup(asCConfigGroup *group)
 	group->AddRef();
 }
 
+void asCConfigGroup::AddReferencesForFunc(asCScriptEngine *engine, asCScriptFunction *func)
+{
+	AddReferencesForType(engine, func->returnType.GetObjectType());
+	for( asUINT n = 0; n < func->parameterTypes.GetLength(); n++ )
+		AddReferencesForType(engine, func->parameterTypes[n].GetObjectType());
+}
+
+void asCConfigGroup::AddReferencesForType(asCScriptEngine *engine, asCObjectType *type)
+{
+	if( type == 0 ) return;
+
+	// Keep reference to other groups
+	RefConfigGroup(engine->FindConfigGroupForObjectType(type));
+
+	// Keep track of which generated template instances the config group uses
+	if( type->flags & asOBJ_TEMPLATE && engine->generatedTemplateTypes.Exists(type) && !generatedTemplateInstances.Exists(type) )
+		generatedTemplateInstances.PushLast(type);
+}
+
 bool asCConfigGroup::HasLiveObjects()
 {
 	for( asUINT n = 0; n < objTypes.GetLength(); n++ )
-		if( objTypes[n]->GetRefCount() != 0 )
+		if( objTypes[n]->externalRefCount.get() != 0 )
 			return true;
 
 	return false;
@@ -105,13 +125,13 @@ void asCConfigGroup::RemoveConfiguration(asCScriptEngine *engine, bool notUsed)
 	// Remove global variables
 	for( n = 0; n < globalProps.GetLength(); n++ )
 	{
-		int index = engine->registeredGlobalProps.IndexOf(globalProps[n]);
+		int index = engine->registeredGlobalProps.GetIndex(globalProps[n]);
 		if( index >= 0 )
 		{
 			globalProps[n]->Release();
 
 			// TODO: global: Should compact the registeredGlobalProps array
-			engine->registeredGlobalProps[index] = 0;
+			engine->registeredGlobalProps.Erase(index);
 		}
 	}
 	globalProps.SetLength(0);
@@ -119,8 +139,10 @@ void asCConfigGroup::RemoveConfiguration(asCScriptEngine *engine, bool notUsed)
 	// Remove global functions
 	for( n = 0; n < scriptFunctions.GetLength(); n++ )
 	{
-		scriptFunctions[n]->Release();
-		engine->registeredGlobalFuncs.RemoveValue(scriptFunctions[n]);
+		int index = engine->registeredGlobalFuncs.GetIndex(scriptFunctions[n]);
+		if( index >= 0 )
+			engine->registeredGlobalFuncs.Erase(index);
+		scriptFunctions[n]->ReleaseInternal();
 		if( engine->stringFactory == scriptFunctions[n] )
 			engine->stringFactory = 0;
 	}
@@ -138,33 +160,48 @@ void asCConfigGroup::RemoveConfiguration(asCScriptEngine *engine, bool notUsed)
 	for( n = 0; n < funcDefs.GetLength(); n++ )
 	{
 		engine->registeredFuncDefs.RemoveValue(funcDefs[n]);
-		funcDefs[n]->Release();
+		funcDefs[n]->ReleaseInternal();
+		engine->RemoveFuncdef(funcDefs[n]);
+		funcDefs[n]->ReleaseInternal();
 	}
 	funcDefs.SetLength(0);
 
 	// Remove object types (skip this if it is possible other groups are still using the types)
 	if( !notUsed )
 	{
-		for( n = 0; n < objTypes.GetLength(); n++ )
+		for( n = asUINT(objTypes.GetLength()); n-- > 0; )
 		{
 			asCObjectType *t = objTypes[n];
-			int idx = engine->objectTypes.IndexOf(t);
-			if( idx >= 0 )
+			asSMapNode<asSNameSpaceNamePair, asCObjectType*> *cursor;
+			if( engine->allRegisteredTypes.MoveTo(&cursor, asSNameSpaceNamePair(t->nameSpace, t->name)) &&
+				cursor->value == t )
 			{
-#ifdef AS_DEBUG
-				ValidateNoUsage(engine, t);
-#endif
+				engine->allRegisteredTypes.Erase(cursor);
 
-				engine->objectTypes.RemoveIndex(idx);
+				if( engine->defaultArrayObjectType == t )
+					engine->defaultArrayObjectType = 0;
 
 				if( t->flags & asOBJ_TYPEDEF )
 					engine->registeredTypeDefs.RemoveValue(t);
 				else if( t->flags & asOBJ_ENUM )
 					engine->registeredEnums.RemoveValue(t);
+				else if( t->flags & asOBJ_TEMPLATE )
+					engine->registeredTemplateTypes.RemoveValue(t);
 				else
 					engine->registeredObjTypes.RemoveValue(t);
 
-				asDELETE(t, asCObjectType);
+				t->DestroyInternal();
+				t->ReleaseInternal();
+			}
+			else
+			{
+				int idx = engine->templateInstanceTypes.IndexOf(t);
+				if( idx >= 0 )
+				{
+					engine->templateInstanceTypes.RemoveIndexUnordered(idx);
+					t->DestroyInternal();
+					t->ReleaseInternal();
+				}
 			}
 		}
 		objTypes.SetLength(0);
@@ -175,35 +212,5 @@ void asCConfigGroup::RemoveConfiguration(asCScriptEngine *engine, bool notUsed)
 		referencedConfigGroups[n]->refCount--;
 	referencedConfigGroups.SetLength(0);
 }
-
-#ifdef AS_DEBUG
-void asCConfigGroup::ValidateNoUsage(asCScriptEngine *engine, asCObjectType *type)
-{
-	for( asUINT n = 0; n < engine->scriptFunctions.GetLength(); n++ )
-	{
-		asCScriptFunction *func = engine->scriptFunctions[n];
-		if( func == 0 ) continue;
-
-		// Ignore factory, list factory, and members
-		if( func->name == "_beh_2_" || func->name == "_beh_3_" || func->objectType == type )
-			continue;
-
-		asASSERT( func->returnType.GetObjectType() != type );
-
-		for( asUINT p = 0; p < func->parameterTypes.GetLength(); p++ )
-		{
-			asASSERT(func->parameterTypes[p].GetObjectType() != type);
-		}
-	}
-
-	// TODO: Check also usage of the type in global variables 
-
-	// TODO: Check also usage of the type in local variables in script functions
-
-	// TODO: Check also usage of the type as members of classes
-
-	// TODO: Check also usage of the type as sub types in other types
-}
-#endif
 
 END_AS_NAMESPACE

@@ -1852,8 +1852,8 @@ int Script::Bind( const char* module_name, const char* func_name, const char* de
             Str::Format( decl_, decl, func_name );
         else
             Str::Copy( decl_, func_name );
-        int result = module->GetFunctionIdByDecl( decl_ );
-        if( result <= 0 )
+        asIScriptFunction* result = module->GetFunctionByDecl( decl_ );
+        if( !result )
         {
             if( !disable_log )
                 WriteLogF( _FUNC_, " - Function<%s> in module<%s> not found, result<%d>.\n", decl_, module_name, result );

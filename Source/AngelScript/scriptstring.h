@@ -10,7 +10,7 @@ public:
     #ifdef FONLINE_DLL
     static ScriptString& Create( const char* str = NULL )
     {
-        static int    typeId = ASEngine->GetTypeIdByDecl( "string" );
+        static const asIObjectType* typeId = ASEngine->GetObjectTypeByDecl( "string" );
         ScriptString* scriptStr = (ScriptString*) ASEngine->CreateScriptObject( typeId );
         if( str )
             scriptStr->assign( str );

@@ -1,6 +1,6 @@
 /*
    AngelCode Scripting Library
-   Copyright (c) 2003-2012 Andreas Jonsson
+   Copyright (c) 2003-2015 Andreas Jonsson
 
    This software is provided 'as-is', without any express or implied 
    warranty. In no event will the authors be held liable for any 
@@ -51,27 +51,6 @@ BEGIN_AS_NAMESPACE
 
 // TODO: memory: Need to minimize used memory here, because not all types use all properties of the class
 
-// TODO: The type id should have flags for diferenciating between value types and reference types. It should also have a flag for differenciating interface types.
-
-// Additional flag to the class object type
-const asDWORD asOBJ_IMPLICIT_HANDLE  = 0x00400000;
-const asDWORD asOBJ_TYPEDEF          = 0x40000000;
-const asDWORD asOBJ_ENUM             = 0x10000000;
-const asDWORD asOBJ_TEMPLATE_SUBTYPE = 0x20000000;
-
-
-
-// asOBJ_GC is used to indicate that the type can potentially 
-// form circular references, thus is garbage collected.
-
-// The fact that an object is garbage collected doesn't imply that an object that 
-// can references it also must be garbage collected, only if the garbage collected 
-// object can reference it as well.
-
-// For registered types however, we set the flag asOBJ_GC if the GC 
-// behaviours are registered. For script types that contain any such type we 
-// automatically make garbage collected as well, because we cannot know what type
-// of references that object can contain, and must assume the worst.
 
 struct asSTypeBehaviour
 {
@@ -92,6 +71,7 @@ struct asSTypeBehaviour
 		gcEnumReferences = 0; 
 		gcReleaseAllReferences = 0;
 		templateCallback = 0;
+		getWeakRefFlag = 0;
 	}
 
 	int factory;
@@ -104,17 +84,19 @@ struct asSTypeBehaviour
 	int addref;
 	int release;
 	int templateCallback;
-	
+
 	// GC behaviours
 	int gcGetRefCount;
 	int gcSetFlag;
 	int gcGetFlag;
 	int gcEnumReferences;
 	int gcReleaseAllReferences;
-	
+
+	// Weakref behaviours
+	int getWeakRefFlag;
+
 	asCArray<int> factories;
 	asCArray<int> constructors;
-	asCArray<int> operators;
 };
 
 struct asSEnumValue
@@ -124,8 +106,7 @@ struct asSEnumValue
 };
 
 class asCScriptEngine;
-
-void RegisterObjectTypeGCBehaviours(asCScriptEngine *engine);
+struct asSNameSpace;
 
 class asCObjectType : public asIObjectType
 {
@@ -136,6 +117,7 @@ public:
 	asIScriptEngine *GetEngine() const;
 	const char      *GetConfigGroup() const;
 	asDWORD          GetAccessMask() const;
+	asIScriptModule *GetModule() const;
 
 	// Memory management
 	int AddRef() const;
@@ -149,8 +131,9 @@ public:
 	asDWORD          GetFlags() const;
 	asUINT           GetSize() const;
 	int              GetTypeId() const;
-	int              GetSubTypeId() const;
-	asIObjectType   *GetSubType() const;
+	int              GetSubTypeId(asUINT subtypeIndex = 0) const;
+	asIObjectType   *GetSubType(asUINT subtypeIndex = 0) const;
+	asUINT           GetSubTypeCount() const;
 
 	// Interfaces
 	asUINT           GetInterfaceCount() const;
@@ -159,60 +142,60 @@ public:
 
 	// Factories
 	asUINT             GetFactoryCount() const;
-	int                GetFactoryIdByIndex(asUINT index) const;
-	int                GetFactoryIdByDecl(const char *decl) const;
 	asIScriptFunction *GetFactoryByIndex(asUINT index) const;
 	asIScriptFunction *GetFactoryByDecl(const char *decl) const;
 
 	// Methods
 	asUINT             GetMethodCount() const;
-	int                GetMethodIdByIndex(asUINT index, bool getVirtual) const;
-	int                GetMethodIdByName(const char *name, bool getVirtual) const;
-	int                GetMethodIdByDecl(const char *decl, bool getVirtual) const;
 	asIScriptFunction *GetMethodByIndex(asUINT index, bool getVirtual) const;
 	asIScriptFunction *GetMethodByName(const char *name, bool getVirtual) const;
 	asIScriptFunction *GetMethodByDecl(const char *decl, bool getVirtual) const;
 
 	// Properties
 	asUINT      GetPropertyCount() const;
-	int         GetProperty(asUINT index, const char **name, int *typeId, bool *isPrivate, int *offset, bool *isReference, asDWORD *accessMask) const;
-	const char *GetPropertyDeclaration(asUINT index) const;
+	int         GetProperty(asUINT index, const char **name, int *typeId, bool *isPrivate, bool *isProtected, int *offset, bool *isReference, asDWORD *accessMask) const;
+	const char *GetPropertyDeclaration(asUINT index, bool includeNamespace = false) const;
 
 	// Behaviours
-	asUINT GetBehaviourCount() const;
-	int    GetBehaviourByIndex(asUINT index, asEBehaviours *outBehaviour) const;
+	asUINT             GetBehaviourCount() const;
+	asIScriptFunction *GetBehaviourByIndex(asUINT index, asEBehaviours *outBehaviour) const;
 
 	// User data
-	void *SetUserData(void *data);
-	void *GetUserData() const;
+	void *SetUserData(void *data, asPWORD type);
+	void *GetUserData(asPWORD type) const;
 
 //===========================================
 // Internal
 //===========================================
 public:
-	asCObjectType(); 
 	asCObjectType(asCScriptEngine *engine);
 	~asCObjectType();
+	void DestroyInternal();
 
-	int  GetRefCount();
-	void SetGCFlag();
-	bool GetGCFlag();
-	void EnumReferences(asIScriptEngine *);
-	void ReleaseAllHandles(asIScriptEngine *);
+	// Keep an internal reference counter to separate references coming from 
+	// application or script objects and references coming from the script code
+	int AddRefInternal();
+	int ReleaseInternal();
 
 	void ReleaseAllFunctions();
 
 	bool IsInterface() const;
 	bool IsShared() const;
 
-	asCObjectProperty *AddPropertyToClass(const asCString &name, const asCDataType &dt, bool isPrivate);
+	asCObjectProperty *AddPropertyToClass(const asCString &name, const asCDataType &dt, bool isPrivate, bool isProtected, bool isInherited);
+	void ReleaseAllProperties();
 
 	asCString                    name;
-	asCString                    nameSpace;
+	asSNameSpace                *nameSpace;
 	int                          size;
+#ifdef WIP_16BYTE_ALIGN
+	int                          alignment;
+#endif
+	mutable int                  typeId;
 	asCArray<asCObjectProperty*> properties;
 	asCArray<int>                methods;
 	asCArray<asCObjectType*>     interfaces;
+	asCArray<asUINT>             interfaceVFTOffsets;
 	asCArray<asSEnumValue*>      enumValues;
 	asCObjectType *              derivedFrom;
 	asCArray<asCScriptFunction*> virtualFunctionTable;
@@ -223,16 +206,27 @@ public:
 	asSTypeBehaviour beh;
 
 	// Used for template types
-	asCDataType    templateSubType;
-	bool           acceptValueSubType;
-	bool           acceptRefSubType;
+	asCArray<asCDataType> templateSubTypes;
+	bool                  acceptValueSubType;
+	bool                  acceptRefSubType;
 
-	asCScriptEngine *engine;
-	void            *userData;
+	// Store the script section where the code was declared
+	int                             scriptSectionIdx;
+	// Store the location where the function was declared (row in the lower 20 bits, and column in the upper 12)
+	int                             declaredAt;
+
+	asCScriptEngine  *engine;
+	asCModule        *module;
+	asCArray<asPWORD> userData;
 
 protected:
-	mutable asCAtomic refCount;
-	mutable bool      gcFlag;
+	friend class asCScriptEngine;
+	friend class asCConfigGroup;
+	friend class asCModule;
+	asCObjectType();
+
+	mutable asCAtomic externalRefCount;
+	asCAtomic         internalRefCount;
 };
 
 END_AS_NAMESPACE
