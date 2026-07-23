@@ -23,7 +23,7 @@
 #include "MsgFiles.h"
 #include "LookData.h"
 
-#ifndef FO_D3D
+#if !defined(FO_D3D) && !defined(CALCINATION)
 // Video
 # include <Theora/theoradec.h>
 # pragma comment( lib, "libtheora_static.lib" )
@@ -370,7 +370,7 @@ public:
 /************************************************************************/
 /* Video                                                                */
 /************************************************************************/
-    #ifndef FO_D3D
+    #if !defined(FO_D3D) && !defined(CALCINATION)
     struct ShowVideo
     {
         string FileName;

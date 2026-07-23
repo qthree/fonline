@@ -191,6 +191,25 @@ struct ScoreType
 
 # define PI_VALUE             ( 3.141592654f )
 
+#ifdef CALCINATION
+class FOWindow
+{
+public:
+    FOWindow() {}
+    ~FOWindow() {}
+    bool focused;
+
+    int x() { return 400; }
+    int y() { return 300; }
+    int w() { return 800; }
+    int h() { return 600; }
+};
+static void* fl_display = NULL;
+static void* fl_window = NULL;
+typedef unsigned int ILuint;
+typedef unsigned int ILenum;
+# else
+
 # include "FL/Fl.H"
 # include "FL/Fl_Window.H"
 # include "FL/x.H"
@@ -340,6 +359,7 @@ public:
 };
 
 extern FOWindow* CreateMainWindow( );
+#endif // CALCINATION
 extern FOWindow* MainWindow; // Initialized and handled in MainClient.cpp / MainMapper.cpp
 
 extern bool IsApplicationRun( );
@@ -357,27 +377,31 @@ extern bool IsApplicationRun( );
 #  pragma comment(lib,"dxerr.lib")
 #  pragma comment(lib,"d3dxof.lib")
 #  define D3D_HR( expr )                  { HRESULT hr__ = expr; if( hr__ != D3D_OK ) { WriteLogF( _FUNC_, " - " # expr ", error<%s - %s>.\n", DXGetErrorString( hr__ ), DXGetErrorDescription( hr__ ) ); return 0; } }
-# endif
-
-# include "GL/glew.h"
-# ifdef FO_WINDOWS
-#  include "GL/wglew.h"
-#  pragma comment( lib, "opengl32.lib" )
-#  pragma comment( lib, "glu32.lib" )
 # else
-#  include "GL/glxew.h"
-# endif
-# include "Fl/gl.h"
-# include "Assimp/aiTypes.h"
-# define GL( expr )                       { expr; if( GameOpt.OpenGLDebug ) { GLenum err__ = glGetError(); if( err__ != GL_NO_ERROR ) { WriteLogF( _FUNC_, " - " # expr ", error<0x%08X - %s>.\n", err__, gluErrorString( err__ ) ); ExitProcess( 0 ); } } }
-# ifdef FO_WINDOWS
-#  define WGL( expr )                     { if( !( expr ) ) { if( GameOpt.OpenGLDebug ) { WriteLogF( _FUNC_, " - " # expr ", error<0x%08X>.\n", GetLastError() ); ExitProcess( 0 ); } } }
+#  include "GL/glew.h"
+#  ifdef FO_WINDOWS
+#   include "GL/wglew.h"
+#   pragma comment( lib, "opengl32.lib" )
+#   pragma comment( lib, "glu32.lib" )
+#  else
+#   include "GL/glxew.h"
+#  endif
+#  ifndef CALCINATION
+#   include "Fl/gl.h"
+#   include "Assimp/aiTypes.h"
+#  endif // CALCINATION
+#  define GL( expr )                       { expr; if( GameOpt.OpenGLDebug ) { GLenum err__ = glGetError(); if( err__ != GL_NO_ERROR ) { WriteLogF( _FUNC_, " - " # expr ", error<0x%08X - %s>.\n", err__, gluErrorString( err__ ) ); ExitProcess( 0 ); } } }
+#  ifdef FO_WINDOWS
+#   define WGL( expr )                     { if( !( expr ) ) { if( GameOpt.OpenGLDebug ) { WriteLogF( _FUNC_, " - " # expr ", error<0x%08X>.\n", GetLastError() ); ExitProcess( 0 ); } } }
+#  endif
 # endif
 
+# ifndef CALCINATION
 # define IL_STATIC_LIB
 # include "IL/il.h"
 # pragma comment( lib, "IL.lib" )
 # pragma comment( lib, "jpeg.lib" )
+# endif // CALCINATION
 
 # ifdef FO_D3D
 #  define COLOR_FIX( c )                  ( c )

@@ -112,10 +112,12 @@ int main( int argc, char** argv )
     }
     #endif
 
+    #ifndef CALCINATION
     // Init window threading
     #ifdef FO_LINUX
     XInitThreads();
     #endif
+    #endif // CALCINATION
 
     // Check for already runned window
     /*#ifndef DEV_VESRION
@@ -134,7 +136,7 @@ int main( int argc, char** argv )
     GetClientOptions();
 
     // Create window
-    MainWindow = CreateMainWindow( );
+    MainWindow = new FOWindow();
     MainWindow->label( GetWindowName() );
 	MainWindow->position( ( Fl::w( ) - MODE_WIDTH ) / 2, ( Fl::h() - MODE_HEIGHT ) / 2 );
     MainWindow->size( MODE_WIDTH, MODE_HEIGHT );
@@ -190,29 +192,20 @@ int main( int argc, char** argv )
     if( GameOpt.AlwaysOnTop )
         SetWindowPos( MainWindow->GetHandle( ), HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE );    
     #endif
-
+#endif // CALCINATION
     // Start
     WriteLog( "Starting FOnline (version %04X-%02X)...\n", CLIENT_VERSION, FO_PROTOCOL_VERSION & 0xFF );
 	
 	Thread    Game;
     Game.Start( GameThread, "Main" );
 
+#ifndef CALCINATION
     // Loop
-	int visible_window = 0;
-	while( !GameOpt.Quit )
-	{
-		visible_window = Fl::wait( );
-		Fl::lock( );
-		if( !visible_window )
-		{
-			Fl::unlock( );
-			break;
-		}
-		Fl::unlock( );
-	}
-	Fl::unlock( );
-	GameOpt.Quit = true;
-	Game.Wait( );
+    while( !GameOpt.Quit && Fl::wait() )
+        ;
+    Fl::unlock();
+    GameOpt.Quit = true;
+    Game.Wait();
 
 	// Finish
 #ifdef FO_WINDOWS
@@ -254,43 +247,34 @@ bool IsApplicationRun( )
 	return FOEngine != 0;
 }
 
+#ifndef CALCINATION
 int FOWindow::handle( int event )
 {
-	if( !FOEngine || GameOpt.Quit )
-		return 0;
+    if( !FOEngine || GameOpt.Quit )
+        return 0;
 
-	//WriteLog( "win event %i\n", event );
-
-	// Keyboard
-	if( event == FL_KEYDOWN || event == FL_KEYUP )
-	{
-		//Lock( );
-		int event_key = Fl::event_key( );
-		//Unlock( );
-		KeyboardEventsLocker.Lock( );
-		KeyboardEvents.push_back( event );
-		KeyboardEvents.push_back( event_key );
-		KeyboardEventsLocker.Unlock( );
-		return 1;
-	}
-	// Mouse
-	else
-	{
-		//Lock( );
-		if( event == FL_PUSH || event == FL_RELEASE || ( event == FL_MOUSEWHEEL && Fl::event_dy( ) != 0 ) )
-		{
-			int event_button = Fl::event_button( );
-			int event_dy = Fl::event_dy( );
-			//Unlock( );
-			MouseEventsLocker.Lock( );
-			MouseEvents.push_back( event );
-			MouseEvents.push_back( event_button );
-			MouseEvents.push_back( event_dy );
-			MouseEventsLocker.Unlock( );
-			return 1;
-		}
-		//Unlock( );
-	}
+    // Keyboard
+    if( event == FL_KEYDOWN || event == FL_KEYUP )
+    {
+        int event_key = Fl::event_key();
+        FOEngine->KeyboardEventsLocker.Lock();
+        FOEngine->KeyboardEvents.push_back( event );
+        FOEngine->KeyboardEvents.push_back( event_key );
+        FOEngine->KeyboardEventsLocker.Unlock();
+        return 1;
+    }
+    // Mouse
+    else if( event == FL_PUSH || event == FL_RELEASE || ( event == FL_MOUSEWHEEL && Fl::event_dy() != 0 ) )
+    {
+        int event_button = Fl::event_button();
+        int event_dy = Fl::event_dy();
+        FOEngine->MouseEventsLocker.Lock();
+        FOEngine->MouseEvents.push_back( event );
+        FOEngine->MouseEvents.push_back( event_button );
+        FOEngine->MouseEvents.push_back( event_dy );
+        FOEngine->MouseEventsLocker.Unlock();
+        return 1;
+    }
 
 	// Focus
 	if( event == FL_FOCUS )
@@ -305,3 +289,4 @@ int FOWindow::handle( int event )
 	}
 	return 0;
 }
+#endif // CALCINATION

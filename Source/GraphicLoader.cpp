@@ -832,6 +832,9 @@ TextureVec GraphicLoader::loadedTextures;
 
 Texture* GraphicLoader::LoadTexture( Device_ device, const char* texture_name, const char* model_path )
 {
+#ifdef CALCINATION
+    return NULL;
+#else
     if( !texture_name || !texture_name[ 0 ] )
         return NULL;
 
@@ -924,6 +927,7 @@ Texture* GraphicLoader::LoadTexture( Device_ device, const char* texture_name, c
     texture->Name = Str::Duplicate( texture_name );
     loadedTextures.push_back( texture );
     return loadedTextures.back();
+#endif // CALCINATION
 }
 
 void GraphicLoader::FreeTexture( Texture* texture )

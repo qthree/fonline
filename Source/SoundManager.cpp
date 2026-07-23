@@ -8,6 +8,7 @@
 // Manager instance
 SoundManager SndMngr;
 
+#ifndef CALCINATION
 // PortAudio
 #include "PortAudio/portaudio.h"
 #ifdef FO_WINDOWS
@@ -25,12 +26,17 @@ SoundManager SndMngr;
 # pragma comment ( lib, "libvorbis_static.lib" )
 # pragma comment ( lib, "libvorbisfile_static.lib" )
 #endif
+#endif // CALCINATION
 
 // Sound structure
 class Sound
 {
 public:
+#ifndef CALCINATION
     PaStream* Stream;
+#else
+    void* Stream;
+#endif // CALCINATION
 
     uchar*    Buf;
     uint      BufSize;
@@ -47,7 +53,10 @@ public:
     bool      Streamable;
     enum { WAV, ACM, OGG } StreamType;
 
+    
+#ifndef CALCINATION
     OggVorbis_File OggDescriptor;
+#endif // CALCINATION
 
     Sound(): Stream( NULL ),
              Buf( NULL ), BufSize( 0 ), BufCur( 0 ),
@@ -57,10 +66,13 @@ public:
     ~Sound()
     {
         SAFEDELA( Buf );
+        
+        #ifndef CALCINATION
         if( Streamable && StreamType == OGG )
             ov_clear( &OggDescriptor );
         if( Stream )
             Pa_CloseStream( Stream );
+        #endif // CALCINATION
     }
 };
 
@@ -72,12 +84,14 @@ bool SoundManager::Init()
 
     WriteLog( "Sound manager initialization...\n" );
 
+    #ifndef CALCINATION
     PaError err = Pa_Initialize();
     if( err != paNoError )
     {
         WriteLog( "PortAudio initialization error<%s,%d>.\n", Pa_GetErrorText( err ), err );
         return false;
     }
+    #endif // CALCINATION
 
     isActive = true;
     WriteLog( "Sound manager initialization complete.\n" );
@@ -88,13 +102,16 @@ void SoundManager::Finish()
 {
     WriteLog( "Sound manager finish.\n" );
     ClearSounds();
+    #ifndef CALCINATION
     Pa_Terminate();
+    #endif // CALCINATION
     isActive = false;
     WriteLog( "Sound manager finish complete.\n" );
 }
 
 void SoundManager::Process()
 {
+    #ifndef CALCINATION
     for( auto it = soundsActive.begin(); it != soundsActive.end();)
     {
         Sound* sound = *it;
@@ -108,6 +125,7 @@ void SoundManager::Process()
             ++it;
         }
     }
+    #endif // CALCINATION
 }
 
 void SoundManager::ClearSounds()
@@ -115,7 +133,9 @@ void SoundManager::ClearSounds()
     for( auto it = soundsActive.begin(); it != soundsActive.end(); ++it )
     {
         Sound* sound = *it;
+        #ifndef CALCINATION
         Pa_AbortStream( sound->Stream );
+        #endif // CALCINATION
         delete sound;
     }
     soundsActive.clear();
@@ -194,6 +214,7 @@ bool SoundManager::ProcessSound( Sound* sound, uchar* output, uint outputSamples
         return true;
     }
 
+    #ifndef CALCINATION
     // Repeat
     if( sound->RepeatTime )
     {
@@ -221,6 +242,7 @@ bool SoundManager::ProcessSound( Sound* sound, uchar* output, uint outputSamples
         memzero( output, outputSamples * sound->SampleSize * sound->Channels );
         return true;
     }
+    #endif // CALCINATION
 
     // Give silent
     memzero( output, outputSamples * sound->SampleSize * sound->Channels );
@@ -229,6 +251,9 @@ bool SoundManager::ProcessSound( Sound* sound, uchar* output, uint outputSamples
 
 Sound* SoundManager::Load( const char* fname, int path_type )
 {
+    #ifdef CALCINATION
+    return NULL;
+    #else
     char fname_[ MAX_FOPATH ];
     Str::Copy( fname_, fname );
 
@@ -287,6 +312,7 @@ Sound* SoundManager::Load( const char* fname, int path_type )
 
     soundsActive.push_back( sound );
     return sound;
+    #endif // CALCINATION
 }
 
 bool SoundManager::LoadWAV( Sound* sound, const char* fname, int path_type )
@@ -378,9 +404,12 @@ bool SoundManager::LoadWAV( Sound* sound, const char* fname, int path_type )
 
 bool SoundManager::LoadACM( Sound* sound, const char* fname, int path_type )
 {
+#ifdef CALCINATION
+    return false;
+#else
     FileManager fm;
     if( !fm.LoadFile( fname, path_type ) )
-        return NULL;
+        return false;
 
     int                     channels = 0;
     int                     freq = 0;
@@ -406,8 +435,10 @@ bool SoundManager::LoadACM( Sound* sound, const char* fname, int path_type )
     }
 
     return true;
+#endif // CALCINATION
 }
 
+#ifndef CALCINATION
 size_t Ogg_read_func( void* ptr, size_t size, size_t nmemb, void* datasource )
 {
     FileManager* fm = (FileManager*) datasource;
@@ -446,9 +477,13 @@ long Ogg_tell_func( void* datasource )
     FileManager* fm = (FileManager*) datasource;
     return fm->GetCurPos();
 }
+#endif // CALCINATION
 
 bool SoundManager::LoadOGG( Sound* sound, const char* fname, int path_type )
 {
+#ifdef CALCINATION
+    return NULL;
+#else
     FileManager* fm = new FileManager();
     if( !fm || !fm->LoadFile( fname, path_type ) )
     {
@@ -534,6 +569,7 @@ bool SoundManager::LoadOGG( Sound* sound, const char* fname, int path_type )
         sound->StreamType = Sound::OGG;
     }
     return true;
+#endif // CALCINATION
 }
 
 bool SoundManager::Streaming( Sound* sound )
@@ -557,6 +593,9 @@ bool SoundManager::StreamingACM( Sound* sound )
 
 bool SoundManager::StreamingOGG( Sound* sound )
 {
+#ifdef CALCINATION
+    return false;
+#else
     int  result = 0;
     uint decoded = 0;
     while( true )
@@ -575,10 +614,14 @@ bool SoundManager::StreamingOGG( Sound* sound )
     sound->BufCur = 0;
     sound->BufSize = decoded;
     return true;
+#endif // CALCINATION
 }
 
 bool SoundManager::PlaySound( const char* name )
 {
+#ifdef CALCINATION
+    return false;
+#else
     if( !isActive || !GetSoundVolume() )
         return true;
     Sound* sound = Load( name, PT_SND_SFX );
@@ -586,6 +629,7 @@ bool SoundManager::PlaySound( const char* name )
         return false;
     Pa_StartStream( sound->Stream );
     return true;
+#endif // CALCINATION
 }
 
 bool SoundManager::PlaySoundType( uchar sound_type, uchar sound_type_ext, uchar sound_id, uchar sound_id_ext )
@@ -653,6 +697,9 @@ bool SoundManager::PlaySoundType( uchar sound_type, uchar sound_type_ext, uchar 
 
 bool SoundManager::PlayMusic( const char* fname, uint pos, uint repeat )
 {
+#ifdef CALCINATION
+    return false;
+#else
     if( !isActive || !GetMusicVolume() )
         return true;
 
@@ -667,6 +714,7 @@ bool SoundManager::PlayMusic( const char* fname, uint pos, uint repeat )
     sound->RepeatTime = repeat;
     Pa_StartStream( sound->Stream );
     return true;
+#endif // CALCINATION
 }
 
 void SoundManager::StopMusic()
@@ -677,7 +725,9 @@ void SoundManager::StopMusic()
         Sound* sound = *it;
         if( sound->IsMusic )
         {
+            #ifndef CALCINATION
             Pa_AbortStream( sound->Stream );
+            #endif // CALCINATION
             delete sound;
             it = soundsActive.erase( it );
         }

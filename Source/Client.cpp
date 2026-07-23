@@ -7,6 +7,10 @@
 #include "Defence.h"
 #include "Version.h"
 
+#ifdef CALCINATION
+#include "FL/Enumerations.H"
+#endif
+
 #include "imgui.h"
 #include "ImGuiOverlay.h"
 #include "LookData.h"
@@ -77,7 +81,7 @@ FOClient::FOClient(): Active( false )
     GmapCar.Car = NULL;
     Animations.resize( 10000 );
 
-    #ifndef FO_D3D
+    #if !defined(FO_D3D) && !defined(CALCINATION)
     CurVideo = NULL;
     MusicVolumeRestore = -1;
     #endif
@@ -512,7 +516,7 @@ bool FOClient::Init()
     {
         LogTryConnect();
     }
-    #ifndef FO_D3D
+    #if !defined(FO_D3D) && !defined(CALCINATION)
     // Intro
     else if( !Str::Substring( CommandLine, "-SkipIntro" ) )
     {
@@ -809,11 +813,11 @@ int FOClient::MainLoop()
     Script::CollectGarbage( false );
 
 	MainLoopCallStackLog( "Video\n" );
-    #ifndef FO_D3D
+    #if !defined(FO_D3D) && !defined(CALCINATION)
     // Video
     if( IsVideoPlayed() )
     {
-        # ifdef FO_D3D
+        # ifdef FO_D3D // WTF???
         LONGLONG cur, stop;
         if( !MediaSeeking || FAILED( MediaSeeking->GetPositions( &cur, &stop ) ) || cur >= stop )
             NextVideo();
@@ -1199,7 +1203,7 @@ void FOClient::ParseKeyboard()
         Keyb::KeyPressed[ dikdw ] = true;
 
         // Video
-        #ifndef FO_D3D
+        #if !defined(FO_D3D) && !defined(CALCINATION)
         if( IsVideoPlayed() )
         {
             if( IsCanStopVideo() && ( dikdw == DIK_ESCAPE || dikdw == DIK_SPACE || dikdw == DIK_RETURN || dikdw == DIK_NUMPADENTER ) )
@@ -1387,6 +1391,7 @@ void FOClient::ParseKeyboard()
                 break;
             // Switch fullscreen
             case DIK_RETURN:
+                #ifndef CALCINATION
                 if( Keyb::AltDwn )
                 {
                     #ifndef FO_D3D
@@ -1427,6 +1432,7 @@ void FOClient::ParseKeyboard()
                     #endif
                     continue;
                 }
+                #endif // CALCINATION
                 break;
             default:
                 break;
@@ -1532,9 +1538,11 @@ void FOClient::ParseMouse()
 {
     // Mouse position
     int mx = 0, my = 0;
+    #ifndef CALCINATION
 	Fl::lock( );
 	Fl::get_mouse( mx, my );
 	Fl::unlock( );
+    #endif // CALCINATION
     #ifdef FO_D3D
     GameOpt.MouseX = mx - ( !GameOpt.FullScreen ? MainWindow->x() : 0 );
     GameOpt.MouseY = my - ( !GameOpt.FullScreen ? MainWindow->y() : 0 );
@@ -1761,7 +1769,7 @@ void FOClient::ParseMouse()
         int event_button = events[ i + 1 ];
         int event_dy = -events[ i + 2 ];
 
-        #ifndef FO_D3D
+        #if !defined(FO_D3D) && !defined(CALCINATION)
         // Stop video
         if( IsVideoPlayed() )
         {
@@ -5844,7 +5852,7 @@ void FOClient::Net_OnLoadMap()
         GmapNullParams();
         ShowMainScreen( SCREEN_GLOBAL_MAP );
         Net_SendLoadMapOk();
-        #ifndef FO_D3D
+        #if !defined(FO_D3D) && !defined(CALCINATION)
         if( IsVideoPlayed() )
             MusicAfterVideo = MsgGM->GetStr( STR_MAP_MUSIC_( map_pid ) );
         else
@@ -5889,7 +5897,7 @@ void FOClient::Net_OnLoadMap()
     ChosenLookBorder.IsDrawHear = ishear;
     ChosenLookBorder.IsRebuild = true;
     DebugLookBorder.IsRebuild = true;
-    #ifndef FO_D3D
+    #if !defined(FO_D3D) && !defined(CALCINATION)
     if( IsVideoPlayed() )
         MusicAfterVideo = MsgGM->GetStr( STR_MAP_MUSIC_( map_pid ) );
     else
@@ -6402,7 +6410,7 @@ void FOClient::Net_OnFollow()
     Str::Copy( cr_name, cr ? cr->GetName() : MsgGame->GetStr( STR_FOLLOW_UNKNOWN_CRNAME ) );
     // Find map
     char map_name[ 64 ];
-    Str::Copy( map_name, map_pid ? "локальную карту" : MsgGame->GetStr( STR_FOLLOW_GMNAME ) );
+    Str::Copy( map_name, map_pid ? "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ" : MsgGame->GetStr( STR_FOLLOW_GMNAME ) );
 
     switch( FollowType )
     {
@@ -7601,7 +7609,7 @@ bool FOClient::RegCheckData( CritterCl* newcr )
         char c = newcr->Name.c_str()[ i ];
         if( ( c >= 'a' && c <= 'z' ) || ( c >= 'A' && c <= 'Z' ) )
             letters_eng++;
-        else if( ( c >= 'а' && c <= 'я' ) || ( c >= 'А' && c <= 'Я' ) || c == 'ё' || c == 'Ё' )
+        else if( ( c >= 'пїЅ' && c <= 'пїЅ' ) || ( c >= 'пїЅ' && c <= 'пїЅ' ) || c == 'пїЅ' || c == 'пїЅ' )
             letters_rus++;
     }
 
@@ -9122,9 +9130,11 @@ bool FOClient::IsCurInWindow()
             return true;
 
         int mx = 0, my = 0;
+        #ifndef CALCINATION
 		Fl::lock( );
 		Fl::get_mouse( mx, my );
 		Fl::unlock( );
+        #endif // CALCINATION
 		return mx >= MainWindow->x( ) && mx <= MainWindow->x( ) + MainWindow->w( ) &&
 			my >= MainWindow->y( ) && my <= MainWindow->y( ) + MainWindow->h( );
     }
@@ -9387,8 +9397,8 @@ void FOClient::FmtTextIntellect( char* str, ushort intellect )
     while( true )
     {
         if( ( *str >= 'a' && *str <= 'z' ) || ( *str >= 'A' && *str <= 'Z' ) ||
-            ( *str >= 'а' && *str <= 'я' ) || ( *str >= 'А' && *str <= 'Я' ) ||
-            *str == 'ё' || *str == 'Ё' )
+            ( *str >= 'пїЅ' && *str <= 'пїЅ' ) || ( *str >= 'пїЅ' && *str <= 'пїЅ' ) ||
+            *str == 'пїЅ' || *str == 'пїЅ' )
         {
             strncat( word, str, 1 );
             str++;
@@ -9548,7 +9558,7 @@ void FOClient::SoundProcess()
     SndMngr.Process();
 }
 
-#ifndef FO_D3D
+#if !defined(FO_D3D) && !defined(CALCINATION)
 void FOClient::AddVideo( const char* video_name, bool can_stop, bool clear_sequence )
 {
     // Stop current
@@ -9938,7 +9948,7 @@ void FOClient::StopVideo()
         MusicVolumeRestore = -1;
     }
 }
-#endif
+#endif // !FO_D3D && !CALCINATION
 
 uint FOClient::AnimLoad( uint name_hash, uchar dir, int res_type )
 {
@@ -11019,7 +11029,7 @@ bool FOClient::SScriptFunc::Global_PlayMusic( ScriptString& music_name, uint pos
 
 void FOClient::SScriptFunc::Global_PlayVideo( ScriptString& video_name, bool can_stop )
 {
-    #ifndef FO_D3D
+    #if !defined(FO_D3D) && !defined(CALCINATION)
     SndMngr.StopMusic();
     Self->AddVideo( video_name.c_str(), can_stop, true );
     #endif
@@ -12843,7 +12853,7 @@ void FOClient::VisualLookBorder::Prepare( uchar chosendir, ushort base_hx, ushor
                 if( FLAG( GameOpt.LookChecks, LOOK_CHECK_LOOK_DATA ) )
                 {
                     int dir_ = GetFarDir( base_hx, base_hy, hx_, hy_ );
-                    uchar ii = ( chosendir > dir_ ? chosendir - dir_ : dir_ - chosendir ); // = i8::abs(start_dir as i8 - cr.Dir as i8); //Направление
+                    uchar ii = ( chosendir > dir_ ? chosendir - dir_ : dir_ - chosendir ); // = i8::abs(start_dir as i8 - cr.Dir as i8); //пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
                     if( ii > 3 )
                         ii = 6 - ii;
 
@@ -12945,7 +12955,7 @@ void FOClient::VisualLookBorder::Prepare( uchar chosendir, ushort base_hx, ushor
                     ushort hy_ = CLAMP( hy, 0, maxhy - 1 );
 
                     int dir_ = GetFarDir( base_hx, base_hy, hx_, hy_ );
-                    uchar ii = ( chosendir > dir_ ? chosendir - dir_ : dir_ - chosendir ); // = i8::abs(start_dir as i8 - cr.Dir as i8); //Направление
+                    uchar ii = ( chosendir > dir_ ? chosendir - dir_ : dir_ - chosendir ); // = i8::abs(start_dir as i8 - cr.Dir as i8); //пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
                     if( ii > 3 )
                         ii = 6 - ii;
 
