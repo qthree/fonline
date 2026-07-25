@@ -279,6 +279,7 @@ public:
     #define ITEM_LOOK_WM_CAR          ( 5 )
     const char* FmtItemLook( Item* item, int look_type );
 
+    #ifndef CALCINATION
     // Intellect text
     PCharPairVec IntellectWords;
     PCharPairVec IntellectSymbols;
@@ -286,6 +287,7 @@ public:
     void ParseIntellectWords( char* words, PCharPairVec& text );
     auto FindIntellectWord( const char* word, PCharPairVec & text, Randomizer & rnd )->PCharPairVec::iterator;
     void FmtTextIntellect( char* str, ushort intellect );
+    #endif // CALCINATION
 
     #define SMTH_NONE                 ( 0 )
     #define SMTH_CRITTER              ( 1 )
