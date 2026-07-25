@@ -544,6 +544,7 @@ void FOClient::Finish()
 
     SAFEDELA( ComBuf );
 
+#ifndef CALCINATION
     for( auto it = IntellectWords.begin(), end = IntellectWords.end(); it != end; ++it )
     {
         delete[] ( *it ).first;
@@ -556,6 +557,7 @@ void FOClient::Finish()
         delete[] ( *it ).second;
     }
     IntellectSymbols.clear();
+#endif // CALCINATION
     FileManager::EndOfWork();
 
     Active = false;
@@ -4233,11 +4235,11 @@ void FOClient::OnText( const char* str, uint crid, int how_say, ushort intellect
         if( !len )
             return;
     }
-
+#ifndef CALCINATION
     // Intellect format
     if( how_say >= SAY_NORM && how_say <= SAY_RADIO )
         FmtTextIntellect( fstr, intellect );
-
+#endif // CALCINATION
     // Type stream
     uint fstr_cr = 0;
     uint fstr_mb = 0;
@@ -4427,9 +4429,9 @@ void FOClient::OnMapText( const char* str, ushort hx, ushort hy, uint color, ush
     char fstr[ MAX_FOTEXT ];
     Str::Copy( fstr, sstr->c_str() );
     sstr->Release();
-
+#ifndef CALCINATION
     FmtTextIntellect( fstr, intellect );
-
+#endif // CALCINATION
     MapText t;
     t.HexX = hx;
     t.HexY = hy;
@@ -8975,6 +8977,7 @@ const char* FOClient::FmtItemLook( Item* item, int look_type )
     return MsgGame->GetStr( STR_ITEM_LOOK_NOTHING );
 }
 
+#ifndef CALCINATION
 void FOClient::ParseIntellectWords( char* words, PCharPairVec& text )
 {
     Str::SkipLine( words );
@@ -9150,6 +9153,7 @@ void FOClient::FmtTextIntellect( char* str, ushort intellect )
         str++;
     }
 }
+#endif // CALCINATION
 
 bool FOClient::SaveLogFile()
 {
