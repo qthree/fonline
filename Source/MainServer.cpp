@@ -8,7 +8,7 @@
 #ifdef FO_LINUX
 # include <signal.h>
 #endif
-#if !defined(SERVER_DAEMON) && !defined(SERVER_LIB)
+#ifndef SERVER_DAEMON
 # include "FL/Fl.H"
 # include "FL/Fl_Window.H"
 # include "FL/Fl_Box.H"
@@ -24,7 +24,7 @@ void InitAdminManager( IniParser* cfg );
 /* GUI & Windows service version                                        */
 /************************************************************************/
 
-#if !defined(SERVER_DAEMON) && !defined(SERVER_LIB)
+#ifndef SERVER_DAEMON
 void GUIInit( IniParser& cfg );
 void GUICallback( Fl_Widget* widget, void* data );
 void UpdateInfo();
@@ -982,8 +982,6 @@ void GameLoopThread( void* )
 /* Admin panel                                                          */
 /************************************************************************/
 
-#ifndef SERVER_LIB
-
 #define MAX_SESSIONS    ( 10 )
 
 struct Session
@@ -1395,8 +1393,6 @@ label_Finish:
     if( --s->RefCount == 0 )
         delete s;
 }
-
-#endif // SERVER_LIB
 
 /************************************************************************/
 /*                                                                      */
