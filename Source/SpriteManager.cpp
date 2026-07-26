@@ -3492,11 +3492,9 @@ AnyFrames* SpriteManager::LoadAnimationBam( const char* fname, int path_type )
     return anim;
 }
 
+#ifndef CALCINATION
 AnyFrames* SpriteManager::LoadAnimationOther( const char* fname, int path_type )
 {
-#ifdef CALCINATION
-    return NULL;
-#else
     // Load file
     FileManager fm;
 	if (!fm.LoadFile(fname, path_type))
@@ -3576,8 +3574,8 @@ AnyFrames* SpriteManager::LoadAnimationOther( const char* fname, int path_type )
         return NULL;
     anim->Ind[ 0 ] = result;
     return anim;
-#endif // CALCINATION
 }
+#endif // CALCINATION
 
 bool SpriteManager::CheckAnimationOther(const char * fname, int path_type)
 {

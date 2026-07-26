@@ -85,11 +85,11 @@ const char* GetLastSocketError();
 #include "FileSystem.h"
 #include "AngelScript/scriptstring.h"
 
-#ifdef CORROSION 
+#if defined(CORROSION) || defined(CALCINATION)
 #define NOEXCEPT noexcept
 #else
 #define NOEXCEPT
-#endif //CORROSION 
+#endif // CORROSION|CALCINATION
 
 #define ___MSG1( x )                      # x
 #define ___MSG0( x )                      ___MSG1( x )

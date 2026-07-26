@@ -359,7 +359,7 @@ private:
     AnyFrames* LoadAnimationTil( const char* fname, int path_type );
     AnyFrames* LoadAnimationMos( const char* fname, int path_type );
     AnyFrames* LoadAnimationBam( const char* fname, int path_type );
-    AnyFrames* LoadAnimationOther( const char* fname, int path_type );
+    AnyFrames* LoadAnimationOther( const char* fname, int path_type ) NOEXCEPT;
     bool       Render3d( int x, int y, float scale, Animation3d* anim3d, RectF* stencil, uint color );
     bool       Render3dSize( RectF rect, bool stretch_up, bool center, Animation3d* anim3d, RectF* stencil, uint color );
     uint       Render3dSprite( Animation3d* anim3d, int dir, int time_proc );
