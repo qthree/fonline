@@ -204,6 +204,7 @@ struct AnyFrames
     uint   Anim2;
 
     uint  GetSprId( uint num_frm ) { return Ind[ num_frm % CntFrm ]; }
+    void  SetSprId( uint num_frm, uint id ) { Ind[ num_frm % CntFrm ] = id; }
     short GetNextX( uint num_frm ) { return NextX[ num_frm % CntFrm ]; }
     short GetNextY( uint num_frm ) { return NextY[ num_frm % CntFrm ]; }
     uint  GetCnt()                 { return CntFrm; }
@@ -331,10 +332,10 @@ private:
 
     Surface* CreateNewSurface( int w, int h );
     Surface* FindSurfacePlace( SpriteInfo* si, int& x, int& y );
+public:
     uint     FillSurfaceFromMemory( SpriteInfo* si, uchar* data, uint size );
 
     // Load sprites
-public:
     AnyFrames*   LoadAnimation( const char* fname, int path_type, int flags = 0 );
     AnyFrames*   ReloadAnimation( AnyFrames* anim, const char* fname, int path_type );
     Animation3d* LoadPure3dAnimation( const char* fname, int path_type );
@@ -347,8 +348,9 @@ private:
     Surface_   spr3dRT, spr3dRTEx, spr3dDS, spr3dRTData;
     int        spr3dSurfWidth, spr3dSurfHeight;
     #endif
-
+public:
     AnyFrames* CreateAnimation( uint frames, uint ticks );
+private:
     AnyFrames* LoadAnimationFrm( const char* fname, int path_type, int dir, bool anim_pix );
     AnyFrames* LoadAnimationRix( const char* fname, int path_type );
     AnyFrames* LoadAnimationFofrm( const char* fname, int path_type, int dir );
