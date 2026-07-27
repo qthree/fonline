@@ -76,3 +76,8 @@ uchar Global_StartClientLib( /* const ServerConfig cfg */ )
     WriteLog( "FOnline finished.\n" );
     return 0;
 }
+
+uchar* Global_AllocBytes(size_t size) 
+{
+    return new uchar[ size ];
+}

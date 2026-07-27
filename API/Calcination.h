@@ -4,6 +4,7 @@
 #include "API_Common.h"
 
 EXPORT uchar Global_StartClientLib();
+EXPORT uchar* Global_AllocBytes(size_t size);
 
 //struct ServerGameOptions;
 
