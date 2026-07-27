@@ -610,8 +610,8 @@ public:
     {
         for( int i = 0; i < 0x100; i++ ) NameTrueChar[ i ] = false;
         for( int i = 0; i < 0x100; i++ ) PassTrueChar[ i ] = false;
-        const uchar name_char[] = " _.-1234567890AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZzÀàÁáÂâÃãÄäÅå¨¸ÆæÇçÈèÉéÊêËëÌìÍíÎîÏïÐðÑñÒòÓóÔôÕõÖö×÷ØøÙùÚúÛûÜüÝýÞþßÿ";
-        const uchar pass_char[] = " _-,.=[]{}?!@#$^&()|`~:;1234567890AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZzÀàÁáÂâÃãÄäÅå¨¸ÆæÇçÈèÉéÊêËëÌìÍíÎîÏïÐðÑñÒòÓóÔôÕõÖö×÷ØøÙùÚúÛûÜüÝýÞþßÿ";
+        const uchar name_char[] = " _.-1234567890AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZzï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½å¨¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½";
+        const uchar pass_char[] = " _-,.=[]{}?!@#$^&()|`~:;1234567890AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZzï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½å¨¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½";
         for( int i = 0, j = sizeof( name_char ); i < j; i++ ) NameTrueChar[ name_char[ i ] ] = true;
         for( int i = 0, j = sizeof( pass_char ); i < j; i++ ) PassTrueChar[ pass_char[ i ] ] = true;
     }
@@ -752,6 +752,7 @@ const char* GetWindowName()
 /************************************************************************/
 #if defined ( FONLINE_CLIENT ) || defined ( FONLINE_MAPPER )
 
+#ifndef CALCINATION
 class FOnlineWindow_Fl_implement: public Fl_Window
 {
 	IntVec KeyboardEvents;
@@ -1143,7 +1144,7 @@ void FOnlineWindow_Fl_implement::SetMouseEvents( IntVec& events )
 	MouseEvents = events;
 	MouseEventsLocker.Unlock( );
 }
-
+#endif // CALCINATION
 uint GetColorDay( int* day_time, uchar* colors, int game_time, int* light )
 {
     uchar result[ 3 ];

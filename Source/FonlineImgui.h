@@ -1,5 +1,6 @@
 #ifndef FONLINE_IMGUI_H
 #define FONLINE_IMGUI_H
+#ifndef CALCINATION
 #include "StdAfx.h"
 #include "imgui.h"
 
@@ -100,4 +101,5 @@ namespace FOnline
 		inline bool IsInit( ) { return InitFlag; }
 	};
 }
+#endif // CALCINATION
 #endif // FONLINE_IMGUI_H

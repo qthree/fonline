@@ -81,11 +81,13 @@ public:
     void ParseKeyboard();
     void ParseMouse();
 
+#ifndef DISABLE_AVATARS
     FileSendBuffer* CurrentFileSend;
     asIScriptFunction* CurrentFileSendCellback;
 
 	FileSendBuffer* CurrentFileRecive;
 	asIScriptFunction* CurrentFileReciveCellback;
+#endif // DISABLE_AVATARS
 
     char*         ComBuf;
     uint          ComLen;
@@ -149,12 +151,14 @@ public:
     void Net_SendKarmaVoting( uint crid, bool val_up );
     void Net_SendRefereshMe();
 
+#ifndef DISABLE_AVATARS
     void Net_SendFileToServer( FileSendBuffer* filebuffer, int collection_type, int p0, int p1, int p2, asIScriptFunction* func );
 
 	void Net_SendFilePartToServer( );
 
 	void Net_SendFileInCollection( );
 	void Net_ReciveFileInCollection( );
+#endif DISABLE_AVATARS
 
     void Net_OnLoginSuccess();
     void Net_OnAddCritter( bool is_npc );
@@ -223,11 +227,13 @@ public:
     void Net_OnCheckUID4();
     void Net_OnViewMap();
 
+#ifndef DISABLE_AVATARS
     void Net_OnServerFinishFileDownload( );
 
 	void Net_OnNextFilePartReqestT( );
 	void Net_OnPrepareSendFileToClient();
 	void Net_OnFilePartToClient();
+#endif // DISABLE_AVATARS
 
     void Net_OnLookData();
 
@@ -634,7 +640,9 @@ public:
         static int           Global_RunAllFunctions( ScriptString& func_name );
 
         static uint Global_LoadSprite( ScriptString& spr_name, int path_index );
+    #ifndef CALCINATION
 		static bool Global_ValidationImage(ScriptString& spr_name, int path_index);
+    #endif // CALCINATION
         static uint Global_LoadSpriteHash( uint name_hash, uchar dir );
         static int  Global_GetSpriteWidth( uint spr_id, int spr_index );
         static int  Global_GetSpriteHeight( uint spr_id, int spr_index );
@@ -858,7 +866,7 @@ public:
     Rect       IntBItem, IntWApCost;
     Rect       IntBChangeSlot, IntBInv, IntBMenu, IntBSkill, IntBMap, IntBChar, IntBPip;
     Rect       IntWMess, IntWMessLarge;
-    Rect       IntAP, IntHP, IntAC, IntBreakTime; // 15 зеленых(200мс) 3 желтых(1000мс) 2 красных(10000мс)
+    Rect       IntAP, IntHP, IntAC, IntBreakTime; // 15 пїЅпїЅпїЅпїЅпїЅпїЅпїЅ(200пїЅпїЅ) 3 пїЅпїЅпїЅпїЅпїЅпїЅ(1000пїЅпїЅ) 2 пїЅпїЅпїЅпїЅпїЅпїЅпїЅ(10000пїЅпїЅ)
     int        IntAPstepX, IntAPstepY, IntAPMax;
     AnyFrames* IntBItemPicDn;
     int        IntBItemOffsX, IntBItemOffsY;

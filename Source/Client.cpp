@@ -34,7 +34,9 @@ static string ScriptLastError;
 void* zlib_alloc_( void* opaque, unsigned int items, unsigned int size ) { return calloc( items, size ); }
 void  zlib_free_( void* opaque, void* address )                          { free( address ); }
 
+#ifndef CALCINATION
 using namespace FOnline;
+#endif // CALCINATION
 
 FOClient*    FOClient::Self = NULL;
 LookData*    FOClient::ChosenLookData = NULL;
@@ -68,6 +70,7 @@ FOClient::FOClient(): Active( false )
     CurMode = 0;
     CurModeLast = 0;
 
+#ifndef CALCINATION
     CurrentFileSend = nullptr;
     CurrentFileSendCellback = nullptr;
 
@@ -77,6 +80,7 @@ FOClient::FOClient(): Active( false )
 	CurrentFileReciveCellback = nullptr;
 
 	CurrentFileRecivePercent = -1;
+#endif // CALCINATION
 
     GmapCar.Car = NULL;
     Animations.resize( 10000 );
@@ -546,7 +550,9 @@ bool FOClient::Init()
     if( MulWndArray[ 11 ] )
         SetupExceptionHandler( NULL, 0 );
 
+#ifndef CALCINATION
 	InitMD5( );
+#endif // CALCINATION
 
     return true;
 }
@@ -918,9 +924,9 @@ int FOClient::MainLoop()
             }
        }*/
     DrawIfaceLayer( MainWindow, 4 );
-
+#ifndef CALCINATION
 	FonlineImgui::RenderAll( );
-
+#endif // CALCINATION
     LMenuDraw();
     CurDraw();
     DrawIfaceLayer( MainWindow, 5 );
@@ -932,7 +938,9 @@ int FOClient::MainLoop()
     SprMngr.EndScene();
 
 	MainLoopCallStackLog( "LoopOverlay\n" );
+#ifndef CALCINATION
 	FOnline::LoopOverlay( );
+#endif // CALCINATION
 
 	MainLoopCallStackLog( "Fixed FPS\n" );
     // Fixed FPS
@@ -1173,7 +1181,7 @@ void FOClient::ParseKeyboard()
 		MainWindow->KeyboardEventsLocker.Unlock( );
 		return;
 	}
-	IntVec events = MainWindow->KeyboardEvents;
+	auto events = MainWindow->KeyboardEvents;
 	MainWindow->KeyboardEvents.clear( );
 	MainWindow->KeyboardEventsLocker.Unlock( );
 
@@ -1662,7 +1670,9 @@ void FOClient::ParseMouse()
         old_cur_x = GameOpt.MouseX;
         old_cur_y = GameOpt.MouseY;
 
+        #ifndef CALCINATION
 		GetMainImgui( )->MouseMoveEvent( GameOpt.MouseX, GameOpt.MouseY );
+        #endif // CALCINATION
 
         if( GetActiveScreen() )
         {
@@ -1760,7 +1770,7 @@ void FOClient::ParseMouse()
 		MainWindow->MouseEventsLocker.Unlock( );
 		return;
 	}
-	IntVec events = MainWindow->MouseEvents;
+	auto events = MainWindow->MouseEvents;
 	MainWindow->MouseEvents.clear( );
 	MainWindow->MouseEventsLocker.Unlock( );
 
@@ -1920,7 +1930,9 @@ void FOClient::ParseMouse()
 		if( script_result )
 			continue;
 
+    #ifndef CALCINATION
 		GetMainImgui( )->MouseEvent( event, event_button, event_dy );
+    #endif // CALCINATION
 
         if( GameOpt.DisableMouseEvents )
             continue;
@@ -3210,6 +3222,7 @@ void FOClient::NetProcess()
         case NETMSG_VIEW_MAP:
             Net_OnViewMap();
             break;
+    #ifndef DISABLE_AVATARS
         case NETMSG_NEXT_FILE_PART_REQEST:
             Net_OnNextFilePartReqestT( );
             break;
@@ -3219,6 +3232,7 @@ void FOClient::NetProcess()
 		case NETMSG_PREPARE_SEND_FILE_TO_CLIENT:
 			Net_OnPrepareSendFileToClient();
 			break;
+    #endif // DISABLE_AVATARS
         case NETMSG_LOADMAP:
             Net_OnLoadMap();
             break;
@@ -3873,6 +3887,7 @@ void FOClient::Net_SendRefereshMe()
     WaitPing();
 }
 
+#ifndef DISABLE_AVATARS
 void FOClient::Net_SendFileToServer( FileSendBuffer* filebuffer, int collection_type, int p0, int p1, int p2, asIScriptFunction* func )
 {	
     if( CurrentFileSend || !filebuffer )
@@ -3912,6 +3927,7 @@ void FOClient::Net_SendFileToServer( FileSendBuffer* filebuffer, int collection_
 	if (!CurrentFileSend->Extension.empty())
 		Bout.Push(CurrentFileSend->Extension.c_str(), CurrentFileSend->Extension.size());
 }
+#endif // DISABLE_AVATARS
 
 void FOClient::Net_OnLoginSuccess()
 {
@@ -7219,6 +7235,7 @@ void FOClient::Net_OnCheckUID4()
         Net_SendPing( PING_UID_FAIL );
 }
 
+#ifndef DISABLE_AVATARS
 void FOClient::Net_OnNextFilePartReqestT( )
 {
 	// AddMess(FOMB_GAME, Str::FormatBuf(" - checked ."));
@@ -7524,6 +7541,7 @@ void FOClient::Net_SendFilePartToServer( )
 		CurrentFileSendPercent = ( int )(( ((double)state->bytework) / CurrentFileSend->filesize ) * 100 );
 	}
 }
+#endif // DISABLE_AVATARS
 
 void FOClient::Net_OnViewMap()
 {
@@ -7552,9 +7570,11 @@ void FOClient::Net_OnViewMap()
     }
 }
 
+#ifndef DISABLE_AVATARS
 void FOClient::Net_OnServerFinishFileDownload( )
 {
 }
+#endif // DISABLE_AVATARS
 
 void FOClient::SetGameColor( uint color )
 {
@@ -11719,7 +11739,7 @@ void FOClient::SScriptFunc::Global_RefreshMap( bool only_tiles, bool only_roof, 
 void FOClient::SScriptFunc::Global_MouseClick( int x, int y, int button, int cursor )
 {
 	MainWindow->MouseEventsLocker.Lock( );
-	IntVec prev_events = MainWindow->MouseEvents;
+	auto prev_events = MainWindow->MouseEvents;
 	MainWindow->MouseEvents.clear( );
 	int    prev_x = GameOpt.MouseX;
 	int    prev_y = GameOpt.MouseY;
@@ -11745,7 +11765,7 @@ void FOClient::SScriptFunc::Global_MouseClick( int x, int y, int button, int cur
 void FOClient::SScriptFunc::Global_KeyboardPress( uchar key1, uchar key2 )
 {
 	MainWindow->KeyboardEventsLocker.Lock( );
-	IntVec prev_events = MainWindow->KeyboardEvents;
+	auto prev_events = MainWindow->KeyboardEvents;
 	MainWindow->KeyboardEvents.clear( );
 	MainWindow->KeyboardEvents.push_back( FL_KEYDOWN );
 	MainWindow->KeyboardEvents.push_back( key1 );
@@ -11760,6 +11780,7 @@ void FOClient::SScriptFunc::Global_KeyboardPress( uchar key1, uchar key2 )
 	MainWindow->KeyboardEventsLocker.Unlock( );
 }
 
+#ifndef DISABLE_AVATARS
 void operator>>( std::ifstream& stream, FileSendBuffer& buff )
 {
     stream >> buff.buffer;
@@ -11795,6 +11816,7 @@ bool FOClient::SScriptFunc::Global_AddFileToServerCollection( ScriptString& file
 	//buffer = nullptr;
     return true;
 }
+#endif // DISABLE_AVATARS
 
 void FOClient::SScriptFunc::Global_GetTime( ushort& year, ushort& month, ushort& day, ushort& day_of_week, ushort& hour, ushort& minute, ushort& second, ushort& milliseconds )
 {
@@ -12041,12 +12063,14 @@ uint FOClient::SScriptFunc::Global_LoadSprite( ScriptString& spr_name, int path_
     return Self->AnimLoad( spr_name.c_str(), path_index, RES_SCRIPT );
 }
 
+#ifndef CALCINATION
 bool FOClient::SScriptFunc::Global_ValidationImage(ScriptString & spr_name, int path_index)
 {
 	if (path_index >= PATH_LIST_COUNT)
 		SCRIPT_ERROR_R0("Invalid path index arg.");
 	return SprMngr.CheckAnimationOther( spr_name.c_str(), path_index );
 }
+#endif CALCINATION
 
 uint FOClient::SScriptFunc::Global_LoadSpriteHash( uint name_hash, uchar dir )
 {
@@ -12156,12 +12180,14 @@ void FOClient::SScriptFunc::Global_DrawText( ScriptString& text, int x, int y, i
     SprMngr.DrawStr( r, text.c_str(), flags, color, font );
 }
 
+#ifndef CALCINATION
 //==========================hotrin 01.12.2021========================
 #include "ShellAPI.h"
 void FOClient::SScriptFunc::Global_OpenWebLink(ScriptString& text)
 {
 	ShellExecute(NULL, "open", text.c_str(), NULL, NULL, SW_SHOW); 
 }
+#endif // CALCINATION
 
 void FOClient::SScriptFunc::Global_ChosenRefreshMap()
 {
@@ -13038,6 +13064,7 @@ void FOClient::VisualLookBorder::Draw( )
         SprMngr.DrawPoints( Hear, PRIMITIVE_LINESTRIP, &GameOpt.SpritesZoom );
 }
 
+#ifndef CALCINATION
 extern string WindowsExplorer_OpenFileName( const char* filter );
 
 ScriptString* FOClient::SScriptFunc::Global_WindowsExplorer_OpenFileName( ScriptString& filter )
@@ -13047,3 +13074,4 @@ ScriptString* FOClient::SScriptFunc::Global_WindowsExplorer_OpenFileName( Script
         return new ScriptString( str );
     return nullptr;
 }
+#endif // CALCINATION

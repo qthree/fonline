@@ -340,8 +340,9 @@ public:
     AnyFrames*   ReloadAnimation( AnyFrames* anim, const char* fname, int path_type );
     Animation3d* LoadPure3dAnimation( const char* fname, int path_type );
     void         FreePure3dAnimation( Animation3d* anim3d );
-
+#ifndef CALCINATION
 	bool CheckAnimationOther(const char* fname, int path_type);
+#endif CALCINATION
 private:
     SprInfoVec sprData;
     #ifdef FO_D3D

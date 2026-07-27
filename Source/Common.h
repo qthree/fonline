@@ -199,6 +199,27 @@ public:
     ~FOWindow() {}
     bool focused;
 
+    struct Locker {
+        void Lock(){}
+        void Unlock(){}
+    };
+    Locker MouseEventsLocker;
+    Locker KeyboardEventsLocker;
+
+    struct Events {
+        void push_back(uint) {}
+        void clear() {}
+        bool empty() { return true; }
+        size_t size() { return 0; }
+        const int& operator[](size_t index) { throw std::out_of_range("Index out of bounds"); }
+        Events() {}
+        Events(const Events&) {}
+        Events& operator=(const Events& other) = default;
+    };
+
+    Events MouseEvents;
+    Events KeyboardEvents;
+
     int x() { return 400; }
     int y() { return 300; }
     int w() { return 800; }

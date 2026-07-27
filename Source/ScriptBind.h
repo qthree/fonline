@@ -866,6 +866,7 @@ BIND_ASSERT( engine->RegisterGlobalFunction( "bool SetParameterDialogGetBehaviou
 
 #ifdef BIND_CLIENT
 
+#ifndef CALCINATION
 BIND_ASSERT( engine->RegisterInterface( "FOWindowEventData" ) );
 
 BIND_ASSERT( engine->RegisterEnum( "FOWindowEvent" ) );
@@ -882,6 +883,7 @@ BIND_ASSERT( engine->RegisterEnumValue( "FOWindowEventResult", "None", 0 ) );
 BIND_ASSERT( engine->RegisterObjectType( "FOWindow", 0, asOBJ_REF ) );
 BIND_ASSERT( engine->RegisterObjectBehaviour( "FOWindow", asBEHAVE_ADDREF, "void f()", asMETHOD( FOWindow, AddRef ), asCALL_THISCALL ) );
 BIND_ASSERT( engine->RegisterObjectBehaviour( "FOWindow", asBEHAVE_RELEASE, "void f()", asMETHOD( FOWindow, Release ), asCALL_THISCALL ) );
+#endif CALCINATION
 
 BIND_ASSERT( engine->RegisterObjectType( "CritterCl", 0, asOBJ_REF ) );
 BIND_ASSERT( engine->RegisterObjectBehaviour( "CritterCl", asBEHAVE_ADDREF, "void f()", asMETHOD( CritterCl, AddRef ), asCALL_THISCALL ) );
@@ -1069,7 +1071,9 @@ BIND_ASSERT( engine->RegisterGlobalFunction( "void RunServerScript(string& funcN
 BIND_ASSERT( engine->RegisterGlobalFunction( "void RunServerScriptUnsafe(string& funcName, int p0 = 0, int p1 = 0, int p2 = 0, string@+ p3 = null, int[]@+ p4 = null)", asFUNCTION( BIND_CLASS Global_RunServerScriptUnsafe ), asCALL_CDECL ) );
 BIND_ASSERT( engine->RegisterGlobalFunction( "uint LoadSprite(string& name, int pathIndex)", asFUNCTION( BIND_CLASS Global_LoadSprite ), asCALL_CDECL ) );
 BIND_ASSERT( engine->RegisterGlobalFunction( "uint LoadSprite(uint nameHash, uint8 dir)", asFUNCTION( BIND_CLASS Global_LoadSpriteHash ), asCALL_CDECL ) );
+#ifndef CALCINATION
 BIND_ASSERT(engine->RegisterGlobalFunction("bool ValidationImage(string& name, int pathIndex)", asFUNCTION(BIND_CLASS Global_ValidationImage), asCALL_CDECL));
+#endif // CALCINATION
 BIND_ASSERT( engine->RegisterGlobalFunction( "int GetSpriteWidth(uint sprId, int sprIndex)", asFUNCTION( BIND_CLASS Global_GetSpriteWidth ), asCALL_CDECL ) );
 BIND_ASSERT( engine->RegisterGlobalFunction( "int GetSpriteHeight(uint sprId, int sprIndex)", asFUNCTION( BIND_CLASS Global_GetSpriteHeight ), asCALL_CDECL ) );
 BIND_ASSERT( engine->RegisterGlobalFunction( "uint GetSpriteCount(uint sprId)", asFUNCTION( BIND_CLASS Global_GetSpriteCount ), asCALL_CDECL ) );
@@ -1111,14 +1115,18 @@ BIND_ASSERT( engine->RegisterGlobalFunction( "void RefreshMap(bool onlyTiles, bo
 BIND_ASSERT( engine->RegisterGlobalFunction( "void MouseClick(int x, int y, int button, int cursor)", asFUNCTION( BIND_CLASS Global_MouseClick ), asCALL_CDECL ) );
 BIND_ASSERT( engine->RegisterGlobalFunction( "void KeyboardPress(uint8 key1, uint8 key2)", asFUNCTION( BIND_CLASS Global_KeyboardPress ), asCALL_CDECL ) );
 
+#ifndef CALCINATION
 BIND_ASSERT( engine->RegisterGlobalFunction( "bool AddFileToServerCollection( const string&in filePath, int type, int p0 = 0, int p1 = 0, int p2 = 0, FileCollectionUploadFuncdef@+ func = null )", asFUNCTION( BIND_CLASS Global_AddFileToServerCollection ), asCALL_CDECL ) );
 
 BIND_ASSERT( engine->RegisterGlobalFunction( "FOWindow@+ get_MainWindow()", asFUNCTION( BIND_CLASS Global_GetMainWindows ), asCALL_CDECL ) );
+#endif // CALCINATION
 BIND_ASSERT( engine->RegisterGlobalFunction( "void SetDebugLookMode( bool isDebug )", asFUNCTION( BIND_CLASS Global_SetDebugLookMode ), asCALL_CDECL ) );
 BIND_ASSERT( engine->RegisterGlobalFunction( "bool IsDebugLookMode( )", asFUNCTION( BIND_CLASS Global_IsDebugLookMode ), asCALL_CDECL ) );
 
 //==========================hotrin 01.12.2021========================
+#ifndef CALCINATION
 BIND_ASSERT( engine->RegisterGlobalFunction( "void OpenWebLink(string& text)", asFUNCTION( BIND_CLASS Global_OpenWebLink ), asCALL_CDECL ) );
+#endif // CALCINATION
 BIND_ASSERT( engine->RegisterGlobalFunction( "void ChosenRefreshMap()", asFUNCTION( BIND_CLASS Global_ChosenRefreshMap ), asCALL_CDECL ) );
 //===================================================================
 
@@ -1136,8 +1144,10 @@ BIND_ASSERT( engine->RegisterGlobalProperty( "int __GmapGroupToX", &BIND_CLASS G
 BIND_ASSERT( engine->RegisterGlobalProperty( "int __GmapGroupToY", &BIND_CLASS GmapGroupToY ) );
 BIND_ASSERT( engine->RegisterGlobalProperty( "float __GmapGroupSpeed", &BIND_CLASS GmapGroupSpeed ) );
 
+#ifndef CALCINATION
 BIND_ASSERT( engine->RegisterGlobalProperty( "int __CurrentFileSendPercent", &BIND_CLASS CurrentFileSendPercent ) );
 BIND_ASSERT( engine->RegisterGlobalProperty( "int __CurrentFileRecivePercent", &BIND_CLASS CurrentFileRecivePercent ) );
+#endif // CALCINATION
 #endif
 
 #if defined ( BIND_CLIENT ) || defined ( BIND_SERVER )
@@ -1630,7 +1640,9 @@ BIND_ASSERT( engine->RegisterGlobalProperty( "bool __ShowContourWalls", &GameOpt
 BIND_ASSERT( engine->RegisterGlobalProperty( "bool __SpritesFiltering", &GameOpt.SpritesFiltering ) );
 BIND_ASSERT( engine->RegisterGlobalProperty( "bool __NewChatFont", &GameOpt.NewChatFont ) );
 BIND_ASSERT( engine->RegisterGlobalProperty( "bool __ConsoleActive", &BIND_CLASS ConsoleActive ) );
+#ifndef CALCINATION
 BIND_ASSERT( engine->RegisterGlobalFunction( "string@+ WindowsExplorer_OpenFile( string& filters )", asFUNCTION( BIND_CLASS Global_WindowsExplorer_OpenFileName ), asCALL_CDECL ) );
+#endif // CALCINATION
 
 BIND_ASSERT( engine->RegisterGlobalProperty( "bool __DebugInfo", &GameOpt.DebugInfo ) );
 #endif

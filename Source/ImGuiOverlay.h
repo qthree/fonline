@@ -1,5 +1,6 @@
 #ifndef IM_GUI_OVERLAY_H
 #define IM_GUI_OVERLAY_H
+#ifndef CALCINATION
 #define OVERLAY_OFF
 #include "StdAfx.h"
 #include "FonlineImgui.h"
@@ -43,5 +44,5 @@ namespace FOnline
 		virtual void InitWindow( ) = 0;
 	};
 }
-
+#endif // CALCINATION
 #endif

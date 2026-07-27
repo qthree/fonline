@@ -5,7 +5,9 @@
 
 #include <sstream>
 
+#ifndef CALCINATION
 using namespace FOnline;
+#endif // CALCINATION
 
 #define SK_LAST_LEGACY (217) // SK_OUTDOORSMAN
 #define SK_SPACING (4)
@@ -2317,7 +2319,9 @@ void FOClient::GameDraw()
     LookBordersDraw();
 
     // Critters
+#ifndef CALCINATION
 	GetMainImgui( )->NewFrame( );
+#endif // CALCINATION
     for( auto it = HexMngr.GetCritters().begin(); it != HexMngr.GetCritters().end(); it++ )
     {
         CritterCl* cr = ( *it ).second;
@@ -2348,7 +2352,9 @@ void FOClient::GameDraw()
         // Text on head
         cr->DrawTextOnHead();
     }
+#ifndef CALCINATION
 	GetMainImgui( )->EndFrame( );
+#endif // CALCINATION
 
     // Texts on map
     uint tick = Timer::GameTick();
@@ -9862,7 +9868,7 @@ void FOClient::DlgboxDraw()
     SprMngr.DrawSprite( DlgboxWBottomPicNone, DlgboxWTop[ 0 ] + DlgboxX, DlgboxWTop[ 1 ] + DlgboxY + y_offs );
 
     // static char ftime[32];
-    // sprintf(ftime,"Осталось времени: %d")
+    // sprintf(ftime,"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ: %d")
 }
 
 void FOClient::DlgboxLMouseDown()

@@ -4,7 +4,9 @@
 #include "Crypt.h"
 #include "F2Palette.h"
 
+#ifndef CALCINATION
 using namespace FOnline;
+#endif // CALCINATION
 
 SpriteManager SprMngr;
 AnyFrames*    SpriteManager::DummyAnimation = NULL;
@@ -329,9 +331,9 @@ bool SpriteManager::Init( SpriteMngrParams& params )
             return false;
         }
     }
-
+#ifndef CALCINATION
 	GetMainImgui( )->Init( MainWindow->GetHandle( ), GetDevice( ) );
-
+#endif // CALCINATION
     WriteLog( "Sprite manager initialization complete.\n" );
     return true;
 }
@@ -539,9 +541,9 @@ bool SpriteManager::InitRenderStates()
 void SpriteManager::Finish()
 {
     WriteLog( "Sprite manager finish...\n" );
-
+#ifndef CALCINATION
 	GetMainImgui( )->Finish( );
-
+#endif // CALCINATION
     for( auto it = surfList.begin(), end = surfList.end(); it != end; ++it )
         SAFEDEL( *it );
     surfList.clear();
@@ -594,9 +596,9 @@ bool SpriteManager::BeginScene( uint clear_color )
     if( clear_color )
         ClearCurrentRenderTarget( clear_color );
     #endif
-
+#ifndef CALCINATION
 	GetMainImgui( )->Frame( MainWindow );
-
+#endif // CALCINATION
     Animation3d::BeginScene();
     sceneBeginned = true;
     return true;
@@ -3577,6 +3579,7 @@ AnyFrames* SpriteManager::LoadAnimationOther( const char* fname, int path_type )
 }
 #endif // CALCINATION
 
+#ifndef CALCINATION
 bool SpriteManager::CheckAnimationOther(const char * fname, int path_type)
 {
 	FileManager fm;
@@ -3622,6 +3625,7 @@ bool SpriteManager::CheckAnimationOther(const char * fname, int path_type)
 
 	return true;
 }
+#endif CALCINATION
 
 uint SpriteManager::Render3dSprite( Animation3d* anim3d, int dir, int time_proc )
 {
