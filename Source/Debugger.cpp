@@ -2,15 +2,17 @@
 #include "Debugger.h"
 
 #ifdef DISABLE_DEBUGGER
+void        Debugger::Memory( int block, ssize_t value ) {}
+void        Debugger::MemoryStr( const char* block, ssize_t value ) {}
+#endif // DISABLE_DEBUGGER
 
+#if defined(DISABLE_DEBUGGER) || defined(CORRODED_DEBUGGER)
 void Debugger::BeginCycle() {}
 void Debugger::BeginBlock( int num_block ) {}
 void Debugger::ProcessBlock( int num_block, int identifier ) {}
 void Debugger::EndCycle( double lag_to_show ) {}
 void Debugger::ShowLags( int num_block, double lag_to_show ) {}
 
-void        Debugger::Memory( int block, int value ) {}
-void        Debugger::MemoryStr( const char* block, int value ) {}
 const char* Debugger::GetMemoryStatistics() {
     static string result;
     return result.c_str();
@@ -21,8 +23,9 @@ string Debugger::GetTraceMemory() {
     string str;
     return str;
 }
+#endif // DISABLE_DEBUGGER || CORRODED_DEBUGGER
 
-#else // DISABLE_DEBUGGER
+#if !defined(DISABLE_DEBUGGER) && !defined(CORRODED_DEBUGGER)
 #include "Mutex.h"
 
 #define MAX_BLOCKS       ( 25 )
@@ -133,7 +136,7 @@ const char* MemBlockNames[ MAX_MEM_NODES ] =
 
 static Mutex* MemLocker = NULL;
 
-void Debugger::Memory( int block, int value )
+void Debugger::Memory( int block, ssize_t value )
 {
     if( !MemLocker )
         MemLocker = new Mutex();
@@ -169,7 +172,7 @@ struct MemNodeStr
 typedef vector< MemNodeStr > MemNodeStrVec;
 static MemNodeStrVec MemNodesStr;
 
-void Debugger::MemoryStr( const char* block, int value )
+void Debugger::MemoryStr( const char* block, ssize_t value )
 {
     if( !MemLocker )
         MemLocker = new Mutex();
@@ -708,4 +711,4 @@ string Debugger::GetTraceMemory()
     MemoryAllocRecursion--;
     return str;
 }
-#endif // DISABLE_DEBUGGER
+#endif // !DISABLE_DEBUGGER && !CORRODED_DEBUGGER

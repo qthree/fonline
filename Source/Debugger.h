@@ -42,8 +42,8 @@ namespace Debugger
     void EndCycle( double lag_to_show );
     void ShowLags( int num_block, double lag_to_show );
 
-    void        Memory( int block, int value );
-    void        MemoryStr( const char* block, int value );
+    void        Memory( int block, ssize_t value ) NOEXCEPT;
+    void        MemoryStr( const char* block, ssize_t value ) NOEXCEPT;
     const char* GetMemoryStatistics();
 
     void   StartTraceMemory();

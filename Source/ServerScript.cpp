@@ -35,15 +35,13 @@ void ASDebugFree( void* ptr )
 
 static bool                 ASDbgMemoryCanWork = false;
 static THREAD bool          ASDbgMemoryInUse = false;
-static map< void*, string > ASDbgMemoryPtr;
+static map< void*, pair<string, ssize_t>> ASDbgMemoryPtr;
 static char                 ASDbgMemoryBuf[ 1024 ];
 static Mutex                ASDbgMemoryLocker;
 
 void* ASDeepDebugMalloc( size_t size )
 {
-    size += sizeof( size_t );
-    size_t* ptr = (size_t*) malloc( size );
-    *ptr = size;
+    void* ptr = malloc( size );
 
     if( ASDbgMemoryCanWork && !ASDbgMemoryInUse )
     {
@@ -52,33 +50,33 @@ void* ASDeepDebugMalloc( size_t size )
         const char* module = Script::GetActiveModuleName();
         const char* func = Script::GetActiveFuncName();
         Str::Format( ASDbgMemoryBuf, "AS : %s : %s", module ? module : "<nullptr>", func ? func : "<nullptr>" );
-        MEMORY_PROCESS_STR( ASDbgMemoryBuf, (int) size );
-        ASDbgMemoryPtr.insert( PAIR( ptr, string( ASDbgMemoryBuf ) ) );
+        ssize_t isize = (ssize_t) size;
+        MEMORY_PROCESS_STR( ASDbgMemoryBuf, isize );
+        MEMORY_PROCESS( MEMORY_ANGEL_SCRIPT, isize );
+        auto record = pair(string( ASDbgMemoryBuf ), -isize);
+        ASDbgMemoryPtr.insert( PAIR( ptr, record ) );
         ASDbgMemoryInUse = false;
     }
-    MEMORY_PROCESS( MEMORY_ANGEL_SCRIPT, (int) size );
 
-    return ++ptr;
+    return ptr;
 }
 
 void ASDeepDebugFree( void* ptr )
 {
-    size_t* ptr_ = (size_t*) ptr;
-    size_t  size = *( --ptr_ );
-
     if( ASDbgMemoryCanWork )
     {
         SCOPE_LOCK( ASDbgMemoryLocker );
-        auto it = ASDbgMemoryPtr.find( ptr_ );
+        auto it = ASDbgMemoryPtr.find( ptr );
         if( it != ASDbgMemoryPtr.end() )
         {
-            MEMORY_PROCESS_STR( ( *it ).second.c_str(), -(int) size );
+            ssize_t isize = ( *it ).second.second;
+            MEMORY_PROCESS_STR( ( *it ).second.first.c_str(), isize );
+            MEMORY_PROCESS( MEMORY_ANGEL_SCRIPT, isize );
             ASDbgMemoryPtr.erase( it );
         }
     }
-    MEMORY_PROCESS( MEMORY_ANGEL_SCRIPT, -(int) size );
 
-    free( ptr_ );
+    free( ptr );
 }
 
 bool FOServer::InitScriptSystem()

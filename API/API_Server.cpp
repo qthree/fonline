@@ -158,6 +158,8 @@ uchar Global_StartServerLib( const ServerConfig cfg )
 {
     init_server_lib(cfg);
 
+    MemoryDebugLevel = cfg.MemoryDebugLevel;
+
     if( Server.Init(cfg) )
     {
         FOQuit = false;

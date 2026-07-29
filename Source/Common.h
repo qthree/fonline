@@ -71,6 +71,14 @@ const char* GetLastSocketError();
 # define DLL_Error()                      dlerror()
 #endif
 
+#if defined(CORROSION) || defined(CALCINATION)
+#define NOEXCEPT noexcept
+#define MAYBE_EXTERN extern
+#else
+#define NOEXCEPT
+#define MAYBE_EXTERN
+#endif // CORROSION|CALCINATION
+
 // FOnline stuff
 #include "Types.h"
 #include "Defines.h"
@@ -84,12 +92,6 @@ const char* GetLastSocketError();
 #include "Text.h"
 #include "FileSystem.h"
 #include "AngelScript/scriptstring.h"
-
-#if defined(CORROSION) || defined(CALCINATION)
-#define NOEXCEPT noexcept
-#else
-#define NOEXCEPT
-#endif // CORROSION|CALCINATION
 
 #define ___MSG1( x )                      # x
 #define ___MSG0( x )                      ___MSG1( x )

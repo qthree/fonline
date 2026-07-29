@@ -10,6 +10,7 @@
 
 struct ServerConfig
 {
+    int  MemoryDebugLevel;
     bool LoggingTime;
     bool LoggingThread;
     bool LoggingDebugOutput;
@@ -33,6 +34,7 @@ struct ServerConfig
 
     #ifndef CORRODED_CONFIG
     ServerConfig(IniParser &cfg) {
+        MemoryDebugLevel = cfg.GetInt( "MemoryDebugLevel", 0 );
         LoggingTime = cfg.GetInt( "LoggingTime", 1 ) != 0;
         LoggingThread = cfg.GetInt( "LoggingThread", 1 ) != 0;
         LoggingDebugOutput = cfg.GetInt( "LoggingDebugOutput", 0 ) != 0;
