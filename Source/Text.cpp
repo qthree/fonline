@@ -150,6 +150,16 @@ const char* Str::FormatBuf( const char* format, ... )
     return buf;
 }
 
+char* Str::FormatAppend( char* buf, const char* format, ... )
+{
+    int written = 0;
+    va_list list;
+    va_start( list, format );
+    written += vsprintf( buf, format, list );
+    va_end( list );
+    return buf+written;
+}
+
 void Str::ChangeValue( char* str, int value )
 {
     for( int i = 0; str[ i ]; ++i )

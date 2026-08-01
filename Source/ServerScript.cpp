@@ -36,7 +36,7 @@ void ASDebugFree( void* ptr )
 static bool                 ASDbgMemoryCanWork = false;
 static THREAD bool          ASDbgMemoryInUse = false;
 static map< void*, pair<string, ssize_t>> ASDbgMemoryPtr;
-static char                 ASDbgMemoryBuf[ 1024 ];
+static char                 ASDbgMemoryBuf[ 8192 ];
 static Mutex                ASDbgMemoryLocker;
 
 void* ASDeepDebugMalloc( size_t size )
@@ -47,9 +47,23 @@ void* ASDeepDebugMalloc( size_t size )
     {
         SCOPE_LOCK( ASDbgMemoryLocker );
         ASDbgMemoryInUse = true;
-        const char* module = Script::GetActiveModuleName();
-        const char* func = Script::GetActiveFuncName();
-        Str::Format( ASDbgMemoryBuf, "AS : %s : %s", module ? module : "<nullptr>", func ? func : "<nullptr>" );
+        
+        pair<asIScriptFunction*, int> stack[3];
+        auto stack_size = Script::GetContextCallstack(stack, 3);
+        char* buf = ASDbgMemoryBuf;
+        buf = Str::FormatAppend( buf, "AS");
+        for(uint i = 0; i < stack_size; i++)
+        {
+            auto func = stack[i].first;
+            if( !func )
+            {
+                continue;
+            }
+            int line = stack[i].second;
+            const char* mod = func->GetModuleName();
+            const char* decl = func->GetDeclaration();
+            buf = Str::FormatAppend( buf, " -> %s : %s : %u", mod ? mod : "<nullptr>", decl ? decl : "<nullptr>", line );
+        }
         ssize_t isize = (ssize_t) size;
         MEMORY_PROCESS_STR( ASDbgMemoryBuf, isize );
         MEMORY_PROCESS( MEMORY_ANGEL_SCRIPT, isize );

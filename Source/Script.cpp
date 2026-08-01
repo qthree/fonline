@@ -1187,6 +1187,21 @@ const char* Script::GetActiveFuncName()
     return func->GetName();
 }
 
+uint Script::GetContextCallstack( pair<asIScriptFunction*, int>* stack, uint max )
+{
+    asIScriptContext* ctx = asGetActiveContext();
+    if( !ctx )
+        return 0;
+    uint len = ctx->GetCallstackSize();
+    len = MIN(len, max);
+    for(uint i = 0; i<len; i++) {
+        stack->first = ctx->GetFunction( i );
+        stack->second = ctx->GetLineNumber( i );
+        stack++;
+    }
+    return len;
+}
+
 asIScriptModule* Script::GetModule( const char* name )
 {
     return Engine->GetModule( name, asGM_ONLY_IF_EXISTS );

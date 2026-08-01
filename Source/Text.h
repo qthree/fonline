@@ -31,6 +31,7 @@ namespace Str
 
     char*       Format( char* buf, const char* format, ... );
     const char* FormatBuf( const char* format, ... );
+    char* FormatAppend( char* buf, const char* format, ... );
 
     void  ChangeValue( char* str, int value );
     void  EraseInterval( char* str, int len );

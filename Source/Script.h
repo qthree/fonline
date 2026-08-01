@@ -86,6 +86,7 @@ namespace Script
 
     const char* GetActiveModuleName( );
     const char* GetActiveFuncName( );
+    uint GetContextCallstack( pair<asIScriptFunction*, int>* stack, uint max );
     asIScriptModule* GetModule( const char* name );
     asIScriptModule* CreateModule( const char* module_name );
 
