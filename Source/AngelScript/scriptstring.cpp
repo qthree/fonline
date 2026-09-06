@@ -366,6 +366,7 @@ static ScriptString* StringDefaultFactory()
 
 static ScriptString* StringCopyFactory( const ScriptString& other )
 {
+    CATCH_NULL_STRING_RETURN_NULL(other);
     // Allocate and initialize with the copy constructor
     return new ScriptString( other );
 }

@@ -4,6 +4,9 @@
 #include "angelscript.h"
 #include <string>
 
+#define CATCH_NULL_STRING_RETURN_THIS(reference) if( &reference == NULL ) { asIScriptContext* ctx = asGetActiveContext(); ctx->SetException( "Null pointer string" ); return *this; }
+#define CATCH_NULL_STRING_RETURN_NULL(reference) if( &reference == NULL ) { asIScriptContext* ctx = asGetActiveContext(); ctx->SetException( "Null pointer string" ); return NULL; }
+
 class ScriptString
 {
 public:
@@ -33,11 +36,13 @@ public:
 
     ScriptString& operator=( const ScriptString& other )
     {
+        CATCH_NULL_STRING_RETURN_THIS(other);
         assign( other.c_str(), other.length() );
         return *this;
     }
     ScriptString& operator+=( const ScriptString& other )
     {
+        CATCH_NULL_STRING_RETURN_THIS(other);
         append( other.c_str(), other.length() );
         return *this;
     }
