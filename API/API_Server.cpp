@@ -174,6 +174,7 @@ uchar Global_StartServerLib( const ServerConfig cfg )
     }
     else
     {
+        exit_code = 1;
         WriteLog( "Initialization fail!\n" );
     }
     return exit_code;
