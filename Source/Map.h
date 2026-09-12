@@ -119,9 +119,10 @@ public:
     inline uint   GetId() const  { return Data.MapId; }
     inline ushort GetPid() const { return Data.MapPid; }
 #ifdef CORROSION
-    inline ProtoMap const& get_proto() const { return *Proto; }
+    inline ProtoMap const* get_proto() const { return Proto; }
     inline MapData const& get_map_data_ref() const { return Data; }
     inline MapData & get_map_data_mut() { return Data; }
+    inline uchar* get_hex_flags() const { return hexFlags; }
 #endif
 
     void AddCritter( Critter* cr );

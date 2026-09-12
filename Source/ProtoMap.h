@@ -328,6 +328,7 @@ public:
     SceneryClVec const& get_walls_to_send() const { return WallsToSend; }
     SceneryClVec const& get_sceneries_to_send() const { return SceneriesToSend; }
     MapObjectPtrVec& get_all_map_objects_mut() { return MObjects; }
+    inline uchar* get_hex_flags() const { return HexFlags; }
 #endif
 
     long RefCounter;
