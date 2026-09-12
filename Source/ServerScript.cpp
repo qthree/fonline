@@ -98,6 +98,10 @@ void ASDeepDebugFree( void* ptr )
     free( ptr );
 }
 
+#ifdef CORRODED_SCRIPTS
+extern "C" bool bind_corroded_scripts(asIScriptEngine* engine);
+#endif // CORRODED_SCRIPTS
+
 bool FOServer::InitScriptSystem()
 {
     WriteLog( "Script system initialization...\n" );
@@ -141,6 +145,14 @@ bool FOServer::InitScriptSystem()
     #define BIND_ASSERT( x )    if( ( x ) < 0 ) { WriteLogF( _FUNC_, " - Bind error, line<%d>.\n", __LINE__ ); return false; }
     #include "ScriptBind.h"
 
+#ifdef CORRODED_SCRIPTS
+    if (!bind_corroded_scripts(engine))
+    {
+        WriteLogF( _FUNC_, " - Corroded bind error");
+        return false;
+    }
+#endif // CORRODED_SCRIPTS
+
     // Get config file
     FileManager scripts_cfg;
     scripts_cfg.LoadFile( SCRIPTS_LST, PT_SERVER_SCRIPTS );
@@ -153,6 +165,9 @@ bool FOServer::InitScriptSystem()
     // Load script modules
     Script::Undefine( NULL );
     Script::Define( "__SERVER" );
+#ifdef CORRODED_SCRIPTS
+    Script::Define( "__CORRODED_SCRIPTS" );
+#endif // CORRODED_SCRIPTS
 #ifdef CORRODED_FILE_COLLECTION
     Script::Define( "__CORRODED_FILE_COLLECTION" );
 #endif // CORRODED_FILE_COLLECTION
@@ -4308,6 +4323,7 @@ uint FOServer::SScriptFunc::Map_GetCrittersSeeing( Map* map, CScriptArray& critt
     return (uint) cr_vec.size();
 }
 
+#ifndef CORRODED_SCRIPTS
 void FOServer::SScriptFunc::Map_GetHexInPath( Map* map, ushort from_hx, ushort from_hy, ushort& to_hx, ushort& to_hy, float angle, uint dist )
 {
     if( map->IsNotValid )
@@ -4354,6 +4370,7 @@ void FOServer::SScriptFunc::Map_GetHexInPathWall( Map* map, ushort from_hx, usho
         to_hy = from_hy;
     }
 }
+#endif // CORRODED_SCRIPTS
 
 uint FOServer::SScriptFunc::Map_GetPathLengthHex( Map* map, ushort from_hx, ushort from_hy, ushort to_hx, ushort to_hy, uint cut )
 {
