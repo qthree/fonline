@@ -3476,6 +3476,10 @@ bool FOServer::Init(const ServerConfig &cfg)
     return Active;
 }
 
+#ifdef SERVER_LIB
+extern "C" bool init_corroded_state();
+#endif // SERVER_LIB
+
 bool FOServer::InitReal(const ServerConfig &cfg)
 {
     FileManager::InitDataFiles( DIR_SLASH_SD );
@@ -3689,6 +3693,13 @@ bool FOServer::InitReal(const ServerConfig &cfg)
     // Initialization script
     Script::PrepareContext( ServerFunctions.Init, _FUNC_, "Game" );
     Script::RunPrepared();
+
+#ifdef SERVER_LIB
+    if( !init_corroded_state() )
+    {
+        return false;
+    }
+#endif // SERVER_LIB
 
     // World loading
     if( !Singleplayer )
