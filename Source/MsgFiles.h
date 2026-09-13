@@ -35,15 +35,15 @@ public:
 
     // Generate random number with interval from 10000000 to 99999999
     uint           AddStr( const char* str );
-    const char*    GetStr( uint num );            // Gets const pointer on String value by num in strData
-    const char*    GetStr( uint num, uint skip ); // Gets const pointer on String value by num with skip in strData
-    uint           GetStrNumUpper( uint num );    // Gets const pointer on String value by upper num in strData
-    uint           GetStrNumLower( uint num );    // Gets const pointer on String value by lower num in strData
-    int            GetInt( uint num );            // Gets integer value of string
-    const uchar*   GetBinary( uint num, uint& len );
-    int            Count( uint num );             // Return count of string exist
+    const char*    GetStr( uint num ) const;            // Gets const pointer on String value by num in strData
+    const char*    GetStr( uint num, uint skip ) const; // Gets const pointer on String value by num with skip in strData
+    uint           GetStrNumUpper( uint num ) const;    // Gets const pointer on String value by upper num in strData
+    uint           GetStrNumLower( uint num ) const;    // Gets const pointer on String value by lower num in strData
+    int            GetInt( uint num ) const;            // Gets integer value of string
+    const uchar*   GetBinary( uint num, uint& len ) const;
+    int            Count( uint num ) const;       // Return count of string exist
     void           EraseStr( uint num );          // Delete string
-    uint           GetSize();                     // Gets Size of All Strings, without only FOMSG_ERRNUM
+    uint           GetSize() const;               // Gets Size of All Strings, without only FOMSG_ERRNUM
     void           CalculateHash();               // Calculate toSend data and hash
     uint           GetHash() const;               // Gets Hash code of MSG in toSend
     UIntStrMulMap& GetData();                     // Gets strData

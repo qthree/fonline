@@ -87,7 +87,7 @@ uint FOMsg::AddStr( const char* str )
     return i;
 }
 
-const char* FOMsg::GetStr( uint num )
+const char* FOMsg::GetStr( uint num ) const
 {
     uint str_count = (uint) strData.count( num );
     auto it = strData.find( num );
@@ -107,7 +107,7 @@ const char* FOMsg::GetStr( uint num )
     return ( *it ).second.c_str();
 }
 
-const char* FOMsg::GetStr( uint num, uint skip )
+const char* FOMsg::GetStr( uint num, uint skip ) const
 {
     uint str_count = (uint) strData.count( num );
     auto it = strData.find( num );
@@ -120,7 +120,7 @@ const char* FOMsg::GetStr( uint num, uint skip )
     return ( *it ).second.c_str();
 }
 
-uint FOMsg::GetStrNumUpper( uint num )
+uint FOMsg::GetStrNumUpper( uint num ) const
 {
     auto it = strData.upper_bound( num );
     if( it == strData.end() )
@@ -128,7 +128,7 @@ uint FOMsg::GetStrNumUpper( uint num )
     return ( *it ).first;
 }
 
-uint FOMsg::GetStrNumLower( uint num )
+uint FOMsg::GetStrNumLower( uint num ) const
 {
     auto it = strData.lower_bound( num );
     if( it == strData.end() )
@@ -136,7 +136,7 @@ uint FOMsg::GetStrNumLower( uint num )
     return ( *it ).first;
 }
 
-int FOMsg::GetInt( uint num )
+int FOMsg::GetInt( uint num ) const
 {
     uint str_count = (uint) strData.count( num );
     auto it = strData.find( num );
@@ -156,7 +156,7 @@ int FOMsg::GetInt( uint num )
     return atoi( ( *it ).second.c_str() );
 }
 
-const uchar* FOMsg::GetBinary( uint num, uint& len )
+const uchar* FOMsg::GetBinary( uint num, uint& len ) const
 {
     if( !Count( num ) )
         return NULL;
@@ -181,7 +181,7 @@ const uchar* FOMsg::GetBinary( uint num, uint& len )
     return &( *binary )[ 0 ];
 }
 
-int FOMsg::Count( uint num )
+int FOMsg::Count( uint num ) const
 {
     return !num ? 0 : (uint) strData.count( num );
 }
@@ -201,7 +201,7 @@ void FOMsg::EraseStr( uint num )
     }
 }
 
-uint FOMsg::GetSize()
+uint FOMsg::GetSize() const
 {
     return (uint) strData.size() - 1;
 }
